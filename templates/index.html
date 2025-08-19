@@ -69,14 +69,13 @@
 
     <div id="login" class="login-form page">
       <h2>@title Login</h2>
-      <div>
+      <form action="/login" method="post">
         <label for="username">Username</label>
-        <input type="text" id="username" placeholder="Your Username">
+        <input name="username" type="text" id="username" placeholder="Your Username">
         <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Your Password">
-        <button onclick="alert('Login submitted! (This is a demo)')">Log In</button>
-        <p>Don't have an account? <a href="#">Sign Up</a></p>
-      </div>
+        <input name="password" type="password" id="password" placeholder="Your Password">
+        <button type="submit">Log In</button>
+      </form>
     </div>
 
   </div>
