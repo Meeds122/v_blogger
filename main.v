@@ -169,3 +169,14 @@ pub fn (app &App) newpost(mut ctx Context) veb.Result {
 		return ctx.redirect('/', typ: .see_other)
 	}
 }
+
+pub fn (app &App) comments (mut ctx Context) veb.Result {
+	if ctx.is_admin {
+		title := app.title
+		tab_title := app.tab_title
+		return $veb.html()
+	}
+	else {
+		return ctx.redirect('/', typ: .see_other)
+	}
+}

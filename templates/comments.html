@@ -13,7 +13,7 @@
       <h1>@title Admin</h1>
       <div class="nav-links">
         <a href="/" data-page="home">Home</a>
-        <a href="#" class="active">Admin</a>
+        <a href="admin.html" class="active">Admin</a>
         <button class="theme-toggle" aria-label="Toggle dark mode">
           <svg viewBox="0 0 20 20" class="sun-icon">
             <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 11-2 0 1 1 0 012 0zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 11-2 0 1 1 0 012 0zm-1-1H2a1 1 0 110-2h1a1 1 0 110 2z"/>
@@ -27,26 +27,41 @@
   </nav>
 
   <div class="container">
-    <div class="admin-panel">
-      <h2>Admin Dashboard</h2>
-      <div class="admin-options">
-        <div class="admin-option">
-          <a href="newpost">Write New Blog Post</a>
+    <div class="manage-container">
+      <h2>Manage Comments</h2>
+      <div class="post-list">
+        <div class="post-item">
+          <div>
+            <p><strong>User:</strong> JohnDoe</p>
+            <p><strong>Post:</strong> The Future of AI in 2025</p>
+            <p><strong>Comment:</strong> Great article! Excited for AI advancements.</p>
+            <p><strong>Date:</strong> August 16, 2025</p>
+          </div>
+          <div class="actions">
+            <button onclick="alert('Comment deleted! (This is a demo)')">Delete</button>
+          </div>
         </div>
-        <div class="admin-option">
-          <a href="manageposts">Manage Existing Posts</a>
+        <div class="post-item">
+          <div>
+            <p><strong>User:</strong> JaneSmith</p>
+            <p><strong>Post:</strong> Quantum Computing Breakthroughs</p>
+            <p><strong>Comment:</strong> Very informative, but could use more examples.</p>
+            <p><strong>Date:</strong> August 11, 2025</p>
+          </div>
+          <div class="actions">
+            <button onclick="alert('Comment deleted! (This is a demo)')">Delete</button>
+          </div>
         </div>
-        <div class="admin-option">
-          <a href="export">Export Database</a>
-        </div>
-        <div class="admin-option">
-          <a href="import">Import Database</a>
-        </div>
-        <div class="admin-option">
-          <a href="manageadmins">Manage Admins</a>
-        </div>
-         <div class="admin-option">
-          <a href="comments">Manage Comments</a>
+        <div class="post-item">
+          <div>
+            <p><strong>User:</strong> TechFan</p>
+            <p><strong>Post:</strong> Sustainable Tech Innovations</p>
+            <p><strong>Comment:</strong> Love the focus on eco-friendly tech!</p>
+            <p><strong>Date:</strong> August 6, 2025</p>
+          </div>
+          <div class="actions">
+            <button onclick="alert('Comment deleted! (This is a demo)')">Delete</button>
+          </div>
         </div>
       </div>
     </div>
