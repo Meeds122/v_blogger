@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@tab_title</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="htmx.min.js"></script>
+</head>
+<body data-theme="light">
+  <nav>
+    <div class="nav-container">
+      <h1>@title Admin</h1>
+      <div class="nav-links">
+        <a href="/" data-page="home">Home</a>
+        <a href="admin.html" class="active">Admin</a>
+        <button class="theme-toggle" aria-label="Toggle dark mode">
+          <svg viewBox="0 0 20 20" class="sun-icon">
+            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 11-2 0 1 1 0 012 0zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 11-2 0 1 1 0 012 0zm-1-1H2a1 1 0 110-2h1a1 1 0 110 2z"/>
+          </svg>
+          <svg viewBox="0 0 20 20" class="moon-icon" style="display: none;">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="form-container">
+      <h2>Write New Blog Post</h2>
+      <div>
+        <label for="title">Title</label>
+        <input type="text" id="title" placeholder="Post Title">
+        <label for="date">Date</label>
+        <input type="date" id="date">
+        <label for="excerpt">Excerpt</label>
+        <textarea id="excerpt" placeholder="Short summary of the post"></textarea>
+        <label for="content">Content</label>
+        <textarea id="content" placeholder="Full content of the post"></textarea>
+        <button onclick="alert('Post saved! (This is a demo)')">Save Post</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Dark mode toggle
+    const themeToggle = document.querySelector('.theme-toggle');
+    const sunIcon = document.querySelector('.sun-icon');
+    const moonIcon = document.querySelector('.moon-icon');
+    const body = document.body;
+
+    // Load saved theme
+    if (localStorage.getItem('theme') === 'dark') {
+      body.setAttribute('data-theme', 'dark');
+      sunIcon.style.display = 'none';
+      moonIcon.style.display = 'block';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = body.getAttribute('data-theme') === 'dark';
+      body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      sunIcon.style.display = isDark ? 'block' : 'none';
+      moonIcon.style.display = isDark ? 'none' : 'block';
+      localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>
