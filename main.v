@@ -112,6 +112,7 @@ pub fn (app &App) all_posts (mut ctx Context) veb.Result {
 
 	mut content := ''
 
+	// Create set of post stubs if requested
 	if ('from' in ctx.query) && ('to' in ctx.query) {
 		
 		from := strconv.atoi(ctx.query['from']) or { return ctx.request_error('Error: Requires from= value') }
@@ -133,6 +134,7 @@ pub fn (app &App) all_posts (mut ctx Context) veb.Result {
 		}
 	}
 	else {
+		// Otherwise, create full set of post stubs. 
 		for post in posts {
 			content += make_post_stub(post.post_id, 
 									post.title, 
@@ -225,15 +227,26 @@ pub fn (app &App) admin(mut ctx Context) veb.Result {
 	return $veb.html()
 }
 
+@['/export'; get; post]
 pub fn (app &App) export(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
 	
-	title := app.title
-	tab_title := app.tab_title
-	return $veb.html()
+	if ctx.req.method == .get {
+		title := app.title
+		tab_title := app.tab_title
+		return $veb.html()
+	}
+	else if ctx.req.method == .post {
+		ctx.set_content_type('application/octet-stream')
+		ctx.set_custom_header('Content-Disposition', 'attachment; filename="articles.db"') or {panic(err)}
+		return ctx.file('articles.db')
+	}
+	else {
+		return ctx.request_error('Error: unknown verb')
+	}
 }
 
 pub fn (app &App) import(mut ctx Context) veb.Result {

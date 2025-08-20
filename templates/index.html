@@ -31,12 +31,21 @@
     
     <div id="home" class="page active">
       <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem;">@title Blog</h1>
-      <div class="blog-post"
-        hx-get="/posts" 
-        hx-trigger="load"
-        hx-swap="outerHTML"
-      >
-        <h2>Loading...</h2>
+      <div id="all-posts" class="posts-bucket">
+        <div id="posts"
+          hx-get="/posts?from=0&to=10" 
+          hx-trigger="load"
+          hx-swap="innerHTML"
+        >
+          <h2>Loading...</h2>
+        </div>
+        <div>
+          <button
+          hx-get="/posts"
+          hx-swap="innerHTML"
+          hx-target="#all-posts"
+          >See All Posts</button>
+        </div>
       </div>
     </div>
 
