@@ -31,23 +31,12 @@
     
     <div id="home" class="page active">
       <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem;">@title Blog</h1>
-      <div class="blog-post">
-        <h2>The Future of AI in 2025</h2>
-        <p class="date">August 15, 2025</p>
-        <p>Exploring the advancements in artificial intelligence and their impact on industries.</p>
-        <a href="#">Read More</a>
-      </div>
-      <div class="blog-post">
-        <h2>Quantum Computing Breakthroughs</h2>
-        <p class="date">August 10, 2025</p>
-        <p>How quantum computing is reshaping the tech landscape with unprecedented power.</p>
-        <a href="#">Read More</a>
-      </div>
-      <div class="blog-post">
-        <h2>Sustainable Tech Innovations</h2>
-        <p class="date">August 5, 2025</p>
-        <p>Eco-friendly technologies that are paving the way for a greener future.</p>
-        <a href="#">Read More</a>
+      <div class="blog-post"
+        hx-get="/posts" 
+        hx-trigger="load"
+        hx-swap="outerHTML"
+      >
+        <h2>Loading...</h2>
       </div>
     </div>
 

@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>@tab_title - @post_id</title>
+  <title>@tab_title - @id</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/htmx.min.js"></script>
 </head>
 <body data-theme="light">
   <nav>
     <div class="nav-container">
-      <h1>@title - @post_id</h1>
+      <h1>@title - @id</h1>
       <div class="nav-links">
         <a href="/" data-page="home" class="active">Home</a>
         <button class="theme-toggle" aria-label="Toggle dark mode">
@@ -28,14 +28,12 @@
 
   <div class="container">
     <div class="post-container">
-      <h1 class="post-title">The Future of AI in 2025</h1>
-      <p class="post-date">August 15, 2025</p>
+      <h1 class="post-title">@post_title</h1>
+      <p class="post-date">Published: @str_created</p>
       <div class="post-content">
-        <p>Artificial Intelligence (AI) continues to evolve at an unprecedented pace, transforming industries and redefining how we interact with technology. In 2025, we expect AI to make significant strides in several key areas, including healthcare, transportation, and education.</p>
-        <p>In healthcare, AI-powered diagnostic tools are becoming more accurate, enabling early detection of diseases with greater precision. Machine learning models are now capable of analyzing vast datasets, from medical imaging to patient records, to provide personalized treatment plans.</p>
-        <p>Transportation is another sector experiencing a revolution. Autonomous vehicles, powered by advanced AI algorithms, are becoming more reliable, with companies like Tesla and Waymo leading the charge. These vehicles promise to reduce accidents and improve traffic efficiency.</p>
-        <p>In education, AI is personalizing learning experiences. Adaptive learning platforms use AI to tailor content to individual student needs, improving engagement and outcomes. As AI continues to advance, its integration into everyday life will only deepen, raising both opportunities and ethical considerations.</p>
+        @post_content
       </div>
+      <p class="post-date">Last Modified: @str_modified</p>
     </div>
   </div>
 

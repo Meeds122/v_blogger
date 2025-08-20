@@ -92,15 +92,52 @@ pub fn (app &App) index(mut ctx Context) veb.Result {
 	return $veb.html()
 }
 
-@['/post/:post_id']
-pub fn (app &App) post(mut ctx Context, post_id int) veb.Result {
+@['/posts'; get]
+pub fn (app &App) all_posts (mut ctx Context) veb.Result {
+
+	mut posts := sql app.article_db {
+		select from Post
+    } or { panic(err) }
+
+	// Early exit if no content
+	if posts.len == 0 {
+		return ctx.html('<p>No Content</p>')
+	}
+
+	// Sort by latest e.g. created high to low
+	posts.sort(a.created > b.created)
+
+	mut content := ''
+
+	for post in posts {
+		content += make_post_stub(post.post_id, 
+								post.title, 
+								time.unix(post.created).strftime('%F'),
+								post.summary )
+	}
+
+	return ctx.html(content)
+}
+
+@['/post/:id'; get]
+pub fn (app &App) post(mut ctx Context, id int) veb.Result {
 	// post_id used in template. Probably best to replace with a title or generic. 
 	title := app.title
 	tab_title := app.tab_title
+
+	post := sql app.article_db {
+		select from Post where post_id == id limit 1
+    } or { panic(err) }
+
+	post_title := post[0].title
+	post_content := post[0].content
+	str_created := time.unix(post[0].created).strftime('%F')
+	str_modified := time.unix(post[0].updated).strftime('%F')
+
 	return $veb.html()
 }
 
-@[post]
+@['/login'; post]
 pub fn (app &App) login(mut ctx Context) veb.Result {
 	username := ctx.form['username']
 	password := ctx.form['password']
@@ -116,7 +153,7 @@ pub fn (app &App) login(mut ctx Context) veb.Result {
 // -- Private Routes --
 // --------------------
 
-@[post]
+@['/publish'; post]
 pub fn (app &App) publish(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
@@ -215,3 +252,12 @@ pub fn (app &App) comments(mut ctx Context) veb.Result {
 	tab_title := app.tab_title
 	return $veb.html()
 }
+
+// ----------------------
+// -- Helper Functions --
+// ----------------------
+
+// Utilize V's template engine to make a post stub for index.
+ fn make_post_stub (post_id int, post_title string, post_date string, post_summary string) string {
+	return $tmpl('templates/post_stub.html')
+ }
