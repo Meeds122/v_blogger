@@ -54,6 +54,7 @@ fn main() {
 // 			- setup secure.db
 // 			- setup account registration
 // 			- setup login checking
+// 		2. Figure out formatting for posts. V's template engine plain texts HTML. 
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
