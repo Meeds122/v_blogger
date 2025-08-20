@@ -40,8 +40,8 @@ fn main() {
     mut app := &App{
 		port:			8080
 		article_db:		sqlite.connect('articles.db') or { panic(err) }
-		tab_title:		'CustomCrypto.com - Semiserious Security'
-		title:			'CustomCrypto.com'
+		tab_title:		'V_Blogger Title'
+		title:			'V_Blogger'
     }
 
 	sql app.article_db {
@@ -92,7 +92,7 @@ pub fn (app &App) index(mut ctx Context) veb.Result {
 pub fn (app &App) login(mut ctx Context) veb.Result {
 	username := ctx.form['username']
 	password := ctx.form['password']
-	if (username == 'tristan') && (password == 'test'){
+	if (username == 'admin') && (password == 'admin'){
 		return ctx.redirect('/admin', typ: .see_other)
 	}
 	else {
@@ -170,7 +170,7 @@ pub fn (app &App) newpost(mut ctx Context) veb.Result {
 	}
 }
 
-pub fn (app &App) comments (mut ctx Context) veb.Result {
+pub fn (app &App) comments(mut ctx Context) veb.Result {
 	if ctx.is_admin {
 		title := app.title
 		tab_title := app.tab_title

@@ -86,18 +86,90 @@ nav {
   padding: 0 1rem;
 }
 
-.admin-panel, .form-container, .manage-container {
+.admin-panel, .form-container, .manage-container, .post-container {
   background-color: var(--card-bg);
   padding: 2rem;
   border-radius: 0.5rem;
   box-shadow: var(--shadow);
 }
 
-.admin-panel h2, .form-container h2, .manage-container h2 {
+.admin-panel h2, .form-container h2, .manage-container h2, .post-container h1, .post-container h2, .post-container h3 {
   margin: 0 0 1.5rem;
-  font-size: 1.5rem;
   font-weight: 600;
   text-align: center;
+}
+
+.post-container h1.post-title {
+  font-size: 2rem;
+}
+
+.post-container h2 {
+  font-size: 1.5rem;
+}
+
+.post-container h3 {
+  font-size: 1.25rem;
+}
+
+.post-date {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.post-content {
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.post-content p {
+  margin: 0 0 1rem;
+}
+
+.comments-section {
+  margin-top: 2rem;
+}
+
+.comment-form {
+  margin-top: 1.5rem;
+}
+
+.comment-form label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  color: var(--text-color);
+}
+
+.comment-form textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--text-secondary);
+  border-radius: 0.25rem;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.comment-form button {
+  background-color: var(--accent-color);
+  color: var(--card-bg);
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-weight: 500;
+  width: 100%;
+  font-size: 1rem;
+}
+
+.comment-form button:hover {
+  background-color: #1d4ed8;
 }
 
 .admin-options {
@@ -124,7 +196,7 @@ nav {
   text-decoration: underline;
 }
 
-.form-container label, .manage-container label {
+.form-container label, .manage-container label, .comment-form label {
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
