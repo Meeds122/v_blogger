@@ -167,8 +167,6 @@ pub fn (app &App) publish(mut ctx Context) veb.Result {
 		content: ctx.form['content']
 	}
 
-	println(new_post)
-
 	sql app.article_db {
 		insert new_post into Post
     } or { panic(err) }
