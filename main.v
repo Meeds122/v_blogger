@@ -35,6 +35,7 @@ fn main() {
 
 	sql app.article_db {
         create table Post
+		create table Comment
     } or { panic(err) }
 
 	app.handle_static('static', true) or { panic(err) }
@@ -73,6 +74,15 @@ pub mut:
 	title		string
 	summary		string
 	content		string
+}
+
+pub struct Comment {
+pub:
+	comment_id	int		@[primary; unique; serial]
+	submitted	i64
+	name		string
+	email 		string
+	message		string
 }
 
 // ----------------
@@ -177,6 +187,36 @@ pub fn (app &App) get_content (mut ctx Context, id int) veb.Result {
     } or { panic(err) }
 
 	return ctx.html(post[0].content)
+}
+
+@['/comment'; post]
+pub fn (app &App) comment(mut ctx Context) veb.Result {
+	error_message := '<p>Submission Failure</p>'
+
+	// Let's make sure the form submission is complete. 
+	if ('name' !in ctx.form) || ('email' !in ctx.form) || ('message' !in ctx.form) {
+		return ctx.request_error(error_message)
+	}
+	// Let's make sure no fields are blank
+	match false {
+        ctx.form['name'].len > 0  { return ctx.html(error_message) }
+        ctx.form['email'].len > 0     { return ctx.html(error_message) }
+        ctx.form['message'].len > 0  { return ctx.html(error_message) }
+        else {}
+    }
+
+	new_comment := Comment {
+		submitted: time.now().unix()
+		name: ctx.form['name']
+		email: ctx.form['email']
+		message: ctx.form['message']
+	}
+
+	sql app.article_db {
+		insert new_comment into Comment
+    } or { panic(err) }
+
+	return ctx.html('<p>Submitted!</p>')
 }
 
 @['/login'; post]

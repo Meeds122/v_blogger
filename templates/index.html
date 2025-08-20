@@ -53,15 +53,15 @@
       <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem;">Contact Us</h1>
       <div class="contact-form">
         <p style="margin-bottom: 1rem;">We'd love to hear from you! Reach out with any questions, comments, or feedback.</p>
-        <div>
+        <form hx-post="/comment" hx-swap="outerHTML">
           <label for="name">Name</label>
-          <input type="text" id="name" placeholder="Your Name">
+          <input required name="name" type="text" id="name" placeholder="Your Name">
           <label for="email">Email</label>
-          <input type="email" id="email" placeholder="Your Email">
+          <input required name="email" type="email" id="email" placeholder="Your Email">
           <label for="message">Message</label>
-          <textarea id="message" placeholder="Your Message"></textarea>
-          <button onclick="alert('Message sent! (This is a demo)')">Send Message</button>
-        </div>
+          <textarea required name="message" id="message" placeholder="Your Message"></textarea>
+          <button type="submit">Send Message</button>
+        </form>
       </div>
     </div>
 
