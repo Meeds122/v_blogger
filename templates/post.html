@@ -30,8 +30,11 @@
     <div class="post-container">
       <h1 class="post-title">@post_title</h1>
       <p class="post-date">Published: @str_created</p>
-      <div class="post-content">
-        @post_content
+      <div class="post-content"
+        hx-get="/content/@id" 
+        hx-trigger="load"
+        hx-swap="innerHTML"
+      >
       </div>
       <p class="post-date">Last Modified: @str_modified</p>
     </div>

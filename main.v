@@ -4,6 +4,7 @@ import veb
 import sqlite // V's SQLite wrapper. $ v install sqlite
 
 import time
+import strconv
 
 // Context is not shared between requests. It manages the request session
 pub struct Context {
@@ -54,7 +55,6 @@ fn main() {
 // 			- setup secure.db
 // 			- setup account registration
 // 			- setup login checking
-// 		2. Figure out formatting for posts. V's template engine plain texts HTML. 
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
@@ -93,6 +93,8 @@ pub fn (app &App) index(mut ctx Context) veb.Result {
 	return $veb.html()
 }
 
+// hitting this endpoint with no get parameters yields all posts
+// including ?from=&to= will yield a set of those posts.
 @['/posts'; get]
 pub fn (app &App) all_posts (mut ctx Context) veb.Result {
 
@@ -110,11 +112,33 @@ pub fn (app &App) all_posts (mut ctx Context) veb.Result {
 
 	mut content := ''
 
-	for post in posts {
-		content += make_post_stub(post.post_id, 
-								post.title, 
-								time.unix(post.created).strftime('%F'),
-								post.summary )
+	if ('from' in ctx.query) && ('to' in ctx.query) {
+		
+		from := strconv.atoi(ctx.query['from']) or { return ctx.request_error('Error: Requires from= value') }
+		to := strconv.atoi(ctx.query['to']) or { return ctx.request_error('Error: Requires to= value') }
+
+		// Unfortunately, there is no promise that post_id is going to be contiguous.
+		mut counter := 0 // Also, count from one because the ORM's auto incrementer does that for post_id
+		for post in posts {
+			if (counter >= from) && (counter < to){
+				content += make_post_stub(post.post_id, 
+										post.title, 
+										time.unix(post.created).strftime('%F'),
+										post.summary )
+			}
+			counter += 1
+		}
+		if content.len == 0 {
+			return ctx.request_error('Error: Invalid range')
+		}
+	}
+	else {
+		for post in posts {
+			content += make_post_stub(post.post_id, 
+									post.title, 
+									time.unix(post.created).strftime('%F'),
+									post.summary )
+		}
 	}
 
 	return ctx.html(content)
@@ -131,11 +155,26 @@ pub fn (app &App) post(mut ctx Context, id int) veb.Result {
     } or { panic(err) }
 
 	post_title := post[0].title
-	post_content := post[0].content
+	// V's template engine doesn't seem to be able to disable the html escaping. Need to use htmx.
+	// It is still way faster than the static handler. 
+	// post_content := post[0].content
 	str_created := time.unix(post[0].created).strftime('%F')
 	str_modified := time.unix(post[0].updated).strftime('%F')
 
 	return $veb.html()
+}
+
+// Need to use an HTMX query to load body html if we are formatting via it. 
+// V automatically escapes HTML which is great for security, but not great here
+// since only admins can post new articles with HTML rendered.
+@['/content/:id'; get]
+pub fn (app &App) get_content (mut ctx Context, id int) veb.Result {
+
+	post := sql app.article_db {
+		select from Post where post_id == id limit 1
+    } or { panic(err) }
+
+	return ctx.html(post[0].content)
 }
 
 @['/login'; post]
