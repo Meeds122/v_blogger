@@ -30,12 +30,14 @@
     <div class="form-container">
       <h2>Write New Blog Post</h2>
       <form hx-post="/publish" hx-target="#results" hx-swap="innerHTML">
+        <!-- Prevent implicit submission of the form https://stackoverflow.com/a/51507806 -->
+        <button type="submit" disabled style="display: none" aria-hidden="true"></button>
         <label for="title">Title</label>
-        <input name="title" type="text" id="title" placeholder="Post Title">
+        <input required name="title" type="text" id="title" placeholder="Post Title">
         <label for="excerpt">Summary</label>
-        <textarea name="summary" id="excerpt" placeholder="Short summary of the post"></textarea>
+        <textarea required name="summary" id="excerpt" placeholder="Short summary of the post"></textarea>
         <label for="content">Content</label>
-        <textarea name="content" id="content" placeholder="Full content of the post"></textarea>
+        <textarea required name="content" id="content" placeholder="Full content of the post"></textarea>
         <button type="submit">Save Post</button>
         <p style="text-align: center;" id="results"></p>
       </div>

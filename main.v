@@ -3,6 +3,8 @@ module main
 import veb
 import sqlite // V's SQLite wrapper. $ v install sqlite
 
+import time
+
 // Context is not shared between requests. It manages the request session
 pub struct Context {
     veb.Context
@@ -21,20 +23,6 @@ pub mut:
 	tab_title	string
 	title		string
 }
-
-// fyi, V has a live reload feature for veb dev: $ v -d veb_livereload watch run .
-// When deploying to prod: $ v -prod -o v_blogger .
-
-// TODOs:
-// 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
-// 			- How to measure tho?
-// 		2. Create Login, Sessions, auth validation middle ware
-// 			- Create and validate sessions
-//			- Set session cookie on long
-// 			- Read session from cookie on middleware hit and validate
-// 			- setup secure.db
-// 			- setup account registration
-// 			- setup login checking
 
 fn main() {
     mut app := &App{
@@ -55,13 +43,29 @@ fn main() {
     veb.run[App, Context](mut app, app.port)
 }
 
+// fyi, V has a live reload feature for veb dev: $ v -d veb_livereload watch run .
+// When deploying to prod: $ v -prod -o v_blogger .
+
+// TODOs:
+// 		1. Create Login, Sessions, auth validation middle ware
+// 			- Create and validate sessions
+//			- Set session cookie on long
+// 			- Read session from cookie on middleware hit and validate
+// 			- setup secure.db
+// 			- setup account registration
+// 			- setup login checking
+
+// IDEAs: 
+// 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
+// 			- How to measure tho? Also, even though static handler is 1/2 as performant as template, it is very fast
+
 // ------------
 // -- Models --
 // ------------
 
 pub struct Post {
 pub:
-	post_id 	int
+	post_id 	int		@[primary; unique; serial]
 	created		i64
 pub mut:
 	updated		i64
@@ -118,10 +122,19 @@ pub fn (app &App) publish(mut ctx Context) veb.Result {
 	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
-	
-	println(ctx.form['title'])
-	println(ctx.form['summary'])
-	println(ctx.form['content'])
+	new_post := Post {
+		created: time.now().unix()
+		updated: time.now().unix()
+		title: ctx.form['title']
+		summary: ctx.form['summary']
+		content: ctx.form['content']
+	}
+
+	println(new_post)
+
+	sql app.article_db {
+		insert new_post into Post
+    } or { panic(err) }
 
 	return ctx.html('Post Succesful')
 }
