@@ -45,7 +45,7 @@ fn main() {
     }
 
 	sql app.article_db {
-        create table Article
+        create table Post
     } or { panic(err) }
 
 	app.handle_static('static', true) or { panic(err) }
@@ -59,15 +59,15 @@ fn main() {
 // -- Models --
 // ------------
 
-pub struct Article {
+pub struct Post {
 pub:
-	article_id 	int
+	post_id 	int
 	created		i64
 pub mut:
 	updated		i64
 	title		string
-	body		string
 	summary		string
+	content		string
 }
 
 // ----------------
@@ -112,79 +112,93 @@ pub fn (app &App) login(mut ctx Context) veb.Result {
 // -- Private Routes --
 // --------------------
 
-pub fn (app &App) admin(mut ctx Context) veb.Result {
-	if ctx.is_admin {
-		title := app.title
-		tab_title := app.tab_title
-		return $veb.html()
-	}
-	else {
+@[post]
+pub fn (app &App) publish(mut ctx Context) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
+	
+	println(ctx.form['title'])
+	println(ctx.form['summary'])
+	println(ctx.form['content'])
+
+	return ctx.html('Post Succesful')
+}
+
+pub fn (app &App) admin(mut ctx Context) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	title := app.title
+	tab_title := app.tab_title
+	return $veb.html()
 }
 
 pub fn (app &App) export(mut ctx Context) veb.Result {
-	if ctx.is_admin {
-		title := app.title
-		tab_title := app.tab_title
-		return $veb.html()
-	}
-	else {
+	// Admin Gate
+	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
+	
+	title := app.title
+	tab_title := app.tab_title
+	return $veb.html()
 }
 
 pub fn (app &App) import(mut ctx Context) veb.Result {
-	if ctx.is_admin {
-		title := app.title
-		tab_title := app.tab_title
-		return $veb.html()
-	}
-	else {
+	// Admin Gate
+	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
+	
+	title := app.title
+	tab_title := app.tab_title
+	return $veb.html()
 }
 
 pub fn (app &App) manageadmins(mut ctx Context) veb.Result {
-	if ctx.is_admin {
-		title := app.title
-		tab_title := app.tab_title
-		return $veb.html()
-	}
-	else {
+	// Admin Gate
+	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
+	
+	title := app.title
+	tab_title := app.tab_title
+	return $veb.html()
 }
 
 pub fn (app &App) manageposts(mut ctx Context) veb.Result {
-	if ctx.is_admin {
-		title := app.title
-		tab_title := app.tab_title
-		return $veb.html()
-	}
-	else {
+	// Admin Gate
+	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
+	
+	title := app.title
+	tab_title := app.tab_title
+	return $veb.html()
 }
 
 pub fn (app &App) newpost(mut ctx Context) veb.Result {
-	if ctx.is_admin {
-		title := app.title
-		tab_title := app.tab_title
-		return $veb.html()
-	}
-	else {
+	// Admin Gate
+	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
+	
+	title := app.title
+	tab_title := app.tab_title
+	return $veb.html()
 }
 
 pub fn (app &App) comments(mut ctx Context) veb.Result {
-	if ctx.is_admin {
-		title := app.title
-		tab_title := app.tab_title
-		return $veb.html()
-	}
-	else {
+	// Admin Gate
+	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
+	
+	title := app.title
+	tab_title := app.tab_title
+	return $veb.html()
 }
