@@ -88,6 +88,14 @@ pub fn (app &App) index(mut ctx Context) veb.Result {
 	return $veb.html()
 }
 
+@['/post/:post_id']
+pub fn (app &App) post(mut ctx Context, post_id int) veb.Result {
+	// post_id used in template. Probably best to replace with a title or generic. 
+	title := app.title
+	tab_title := app.tab_title
+	return $veb.html()
+}
+
 @[post]
 pub fn (app &App) login(mut ctx Context) veb.Result {
 	username := ctx.form['username']
