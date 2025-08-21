@@ -56,6 +56,7 @@ fn main() {
 // 			- setup secure.db
 // 			- setup account registration
 // 			- setup login checking
+// 		2. Draft handling
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
@@ -70,6 +71,7 @@ pub:
 	post_id 	int		@[primary; unique; serial]
 	created		i64
 pub mut:
+	draft		bool
 	updated		i64
 	title		string
 	summary		string
@@ -109,7 +111,7 @@ pub fn (app &App) index(mut ctx Context) veb.Result {
 pub fn (app &App) all_posts (mut ctx Context) veb.Result {
 
 	mut posts := sql app.article_db {
-		select from Post
+		select from Post where draft == false
     } or { panic(err) }
 
 	// Early exit if no content
@@ -172,8 +174,20 @@ pub fn (app &App) post(mut ctx Context, id int) veb.Result {
 	// post_content := post[0].content
 	str_created := time.unix(post[0].created).strftime('%F')
 	str_modified := time.unix(post[0].updated).strftime('%F')
+	draft := post[0].draft
 
-	return $veb.html()
+	mut str_draft := ''
+	if draft {
+		str_draft = 'DRAFT - '
+	}
+
+	// Dont let people get drafts from the /post endpoint unless administrator
+	if (draft == true) && (ctx.is_admin == false) {
+		return ctx.not_found()
+	}
+	else {
+		return $veb.html()
+	}
 }
 
 // Need to use an HTMX query to load body html if we are formatting via it. 

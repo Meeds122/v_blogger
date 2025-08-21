@@ -122,6 +122,9 @@ nav {
   line-height: 1.6;
   margin-bottom: 2rem;
 }
+.post-content a {
+  color: var(--text-secondary);
+}
 
 .post-content p {
   margin: 0 0 1rem;
