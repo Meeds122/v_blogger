@@ -30,7 +30,7 @@
   <div class="container">
     
     <div id="home" class="page active">
-      <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem;">@title Blog</h1>
+      <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem;">Blog</h1>
       <div id="all-posts" class="posts-bucket">
         <div id="posts"
           hx-get="/posts?from=0&to=10" 
@@ -50,7 +50,7 @@
     </div>
 
     <div id="contact" class="page">
-      <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem;">Contact Us</h1>
+      <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem;">Contact</h1>
       <div class="contact-form">
         <p style="margin-bottom: 1rem;">We'd love to hear from you! Reach out with any questions, comments, or feedback.</p>
         <form hx-post="/comment" hx-swap="outerHTML">
@@ -65,15 +65,17 @@
       </div>
     </div>
 
-    <div id="login" class="login-form page">
-      <h2>@title Login</h2>
-      <form action="/login" method="post">
-        <label for="username">Username</label>
-        <input name="username" type="text" id="username" placeholder="Your Username">
-        <label for="password">Password</label>
-        <input name="password" type="password" id="password" placeholder="Your Password">
-        <button type="submit">Log In</button>
-      </form>
+    <div id="login" class="page">
+      <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem;">Login</h1>
+      <div class="login-form">
+        <form action="/login" method="post">
+          <label for="username">Username</label>
+          <input name="username" type="text" id="username" placeholder="Your Username">
+          <label for="password">Password</label>
+          <input name="password" type="password" id="password" placeholder="Your Password">
+          <button type="submit">Log In</button>
+        </form>
+      </div>
     </div>
 
   </div>

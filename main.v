@@ -29,8 +29,8 @@ fn main() {
     mut app := &App{
 		port:			8080
 		article_db:		sqlite.connect('articles.db') or { panic(err) }
-		tab_title:		'V_Blogger Title'
-		title:			'V_Blogger'
+		tab_title:		'A Vlang Diary'
+		title:			'A V Programming Language Diary'
     }
 
 	sql app.article_db {

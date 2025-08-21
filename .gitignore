@@ -20,5 +20,4 @@ bin/
 .env
 
 # vweb and database
-*.db
 *.js
