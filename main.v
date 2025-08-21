@@ -57,7 +57,6 @@ fn main() {
 // 			- setup account registration
 // 			- setup login checking
 // 		2. Draft handling
-// 		3. HTML escape comments. Currently an XSS vector. 
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
@@ -202,7 +201,14 @@ pub fn (app &App) get_content (mut ctx Context, id int) veb.Result {
 		select from Post where post_id == id limit 1
     } or { panic(err) }
 
-	return ctx.html(post[0].content)
+	// Dont let people get drafts from the /post endpoint unless administrator
+	draft := post[0].draft
+	if (draft == true) && (ctx.is_admin == false) {
+		return ctx.not_found()
+	}
+	else {
+		return ctx.html(post[0].content)
+	}
 }
 
 @['/comment'; post]
@@ -223,9 +229,9 @@ pub fn (app &App) comment(mut ctx Context) veb.Result {
 
 	new_comment := Comment {
 		submitted: time.now().unix()
-		name: ctx.form['name']
-		email: ctx.form['email']
-		message: ctx.form['message']
+		name: basic_escape_html(ctx.form['name'])
+		email: basic_escape_html(ctx.form['email'])
+		message: basic_escape_html(ctx.form['message'])
 	}
 
 	sql app.article_db {
@@ -314,14 +320,13 @@ pub fn (app &App) manage_all_comments(mut ctx Context) veb.Result{
 	comments.sort(a.submitted > b.submitted)
 
 	mut content := ''
-
 	for comment in comments {
 		content += make_comment_stub(
 			comment.comment_id,
 			comment.name,
 			comment.email,
 			comment.message,
-			time.unix(comment.submitted).strftime('%F %r')
+			time.unix(comment.submitted).strftime('%F %I:%M %p')
 		)
 	}
 
@@ -413,10 +418,44 @@ pub fn (app &App) comments(mut ctx Context) veb.Result {
 // ----------------------
 
 // Utilize V's template engine to make a post stub for index.
- fn make_post_stub (post_id int, post_title string, post_date string, post_summary string) string {
+fn make_post_stub (post_id int, post_title string, post_date string, post_summary string) string {
 	return $tmpl('templates/post_stub.html')
- }
+}
 
- fn make_comment_stub (c_id int, c_name string, c_email string, c_comment string, c_date string) string {
+fn make_comment_stub (c_id int, c_name string, c_email string, c_comment string, c_date string) string {
 	return $tmpl('templates/comment_stub.html')
- }
+}
+
+// This function reminds me of python string maipulation and now I feel gross. 
+fn basic_escape_html (text string) string {
+	banned_chars := {
+		'&': '&amp'
+		'<': '&lt'
+		'>': '&gt'
+		'"': '&quot'
+		"'": '&#x27'
+	}
+	mut fast_path := true
+	for key in banned_chars.keys(){
+		if key.bytes()[0] in text.bytes(){
+			fast_path = false
+			break
+		}
+	}
+
+	if fast_path {
+		return text
+	}
+
+	mut return_text := ''
+
+	for i in 0..text.len {
+		if text[i].ascii_str() in banned_chars.keys() {
+			return_text += banned_chars[text[i].ascii_str()]
+		}
+		else {
+			return_text += text[i].ascii_str()
+		}
+	}
+	return return_text
+}
