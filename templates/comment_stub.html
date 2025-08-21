@@ -6,7 +6,6 @@
         <p><strong>Date:</strong> @c_date</p>
     </div>
     <div class="actions">
-        @c_id
-        <button onclick="alert('Comment deleted! (This is a demo)')">Delete</button>
+        <button hx-delete="/comment/@c_id" hx-swap="outerHTML">Delete</button>
     </div>
 </div>

@@ -57,10 +57,12 @@ fn main() {
 // 			- setup account registration
 // 			- setup login checking
 // 		2. Draft handling
+// 		3. HTML escape comments. Currently an XSS vector. 
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
 // 			- How to measure tho? Also, even though static handler is 1/2 as performant as template, it is very fast
+//		2. Caddy for HTTPS reverse proxy?
 
 // ------------
 // -- Models --
@@ -293,7 +295,7 @@ pub fn (app &App) export(mut ctx Context) veb.Result {
 	}
 }
 
-@['/comments/all'; get; delete]
+@['/comments/all'; get]
 pub fn (app &App) manage_all_comments(mut ctx Context) veb.Result{
 	// Admin Gate
 	if !ctx.is_admin {
@@ -319,7 +321,7 @@ pub fn (app &App) manage_all_comments(mut ctx Context) veb.Result{
 			comment.name,
 			comment.email,
 			comment.message,
-			time.unix(comment.submitted).strftime('%F')
+			time.unix(comment.submitted).strftime('%F %r')
 		)
 	}
 
@@ -327,14 +329,17 @@ pub fn (app &App) manage_all_comments(mut ctx Context) veb.Result{
 }
 
 @['/comment/:id'; delete]
-pub fn (app &App) manage_comment(mut ctx Context) veb.Result {
+pub fn (app &App) manage_comment(mut ctx Context, id int) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
 
+	sql app.article_db {
+		delete from Comment where comment_id == id
+	} or { panic(err) }
 
-	return ctx.no_content()
+	return ctx.html('<p>Deleted</p>')
 }
 
 pub fn (app &App) admin(mut ctx Context) veb.Result {
