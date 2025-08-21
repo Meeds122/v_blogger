@@ -256,6 +256,7 @@ pub fn (app &App) publish(mut ctx Context) veb.Result {
 		return ctx.redirect('/', typ: .see_other)
 	}
 	new_post := Post {
+		draft: true
 		created: time.now().unix()
 		updated: time.now().unix()
 		title: ctx.form['title']
@@ -268,17 +269,6 @@ pub fn (app &App) publish(mut ctx Context) veb.Result {
     } or { panic(err) }
 
 	return ctx.html('Post Succesful')
-}
-
-pub fn (app &App) admin(mut ctx Context) veb.Result {
-	// Admin Gate
-	if !ctx.is_admin {
-		return ctx.redirect('/', typ: .see_other)
-	}
-
-	title := app.title
-	tab_title := app.tab_title
-	return $veb.html()
 }
 
 @['/export'; get; post]
@@ -301,6 +291,61 @@ pub fn (app &App) export(mut ctx Context) veb.Result {
 	else {
 		return ctx.request_error('Error: unknown verb')
 	}
+}
+
+@['/comments/all'; get; delete]
+pub fn (app &App) manage_all_comments(mut ctx Context) veb.Result{
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	mut comments := sql app.article_db {
+		select from Comment
+	} or { panic(err) }
+
+	if comments.len == 0 {
+		return ctx.html('<p>No Comments</p>')
+	}
+
+	// Sort into newest comment first.
+	comments.sort(a.submitted > b.submitted)
+
+	mut content := ''
+
+	for comment in comments {
+		content += make_comment_stub(
+			comment.comment_id,
+			comment.name,
+			comment.email,
+			comment.message,
+			time.unix(comment.submitted).strftime('%F')
+		)
+	}
+
+	return ctx.html(content)
+}
+
+@['/comment/:id'; delete]
+pub fn (app &App) manage_comment(mut ctx Context) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+
+	return ctx.no_content()
+}
+
+pub fn (app &App) admin(mut ctx Context) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	title := app.title
+	tab_title := app.tab_title
+	return $veb.html()
 }
 
 pub fn (app &App) import(mut ctx Context) veb.Result {
@@ -365,4 +410,8 @@ pub fn (app &App) comments(mut ctx Context) veb.Result {
 // Utilize V's template engine to make a post stub for index.
  fn make_post_stub (post_id int, post_title string, post_date string, post_summary string) string {
 	return $tmpl('templates/post_stub.html')
+ }
+
+ fn make_comment_stub (c_id int, c_name string, c_email string, c_comment string, c_date string) string {
+	return $tmpl('templates/comment_stub.html')
  }

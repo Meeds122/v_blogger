@@ -29,40 +29,12 @@
   <div class="container">
     <div class="manage-container">
       <h2>Manage Comments</h2>
-      <div class="post-list">
-        <div class="post-item">
-          <div>
-            <p><strong>User:</strong> JohnDoe</p>
-            <p><strong>Post:</strong> The Future of AI in 2025</p>
-            <p><strong>Comment:</strong> Great article! Excited for AI advancements.</p>
-            <p><strong>Date:</strong> August 16, 2025</p>
-          </div>
-          <div class="actions">
-            <button onclick="alert('Comment deleted! (This is a demo)')">Delete</button>
-          </div>
-        </div>
-        <div class="post-item">
-          <div>
-            <p><strong>User:</strong> JaneSmith</p>
-            <p><strong>Post:</strong> Quantum Computing Breakthroughs</p>
-            <p><strong>Comment:</strong> Very informative, but could use more examples.</p>
-            <p><strong>Date:</strong> August 11, 2025</p>
-          </div>
-          <div class="actions">
-            <button onclick="alert('Comment deleted! (This is a demo)')">Delete</button>
-          </div>
-        </div>
-        <div class="post-item">
-          <div>
-            <p><strong>User:</strong> TechFan</p>
-            <p><strong>Post:</strong> Sustainable Tech Innovations</p>
-            <p><strong>Comment:</strong> Love the focus on eco-friendly tech!</p>
-            <p><strong>Date:</strong> August 6, 2025</p>
-          </div>
-          <div class="actions">
-            <button onclick="alert('Comment deleted! (This is a demo)')">Delete</button>
-          </div>
-        </div>
+      <div class="post-list" id="comments-container"
+        hx-get="/comments/all"
+        hx-trigger="load"
+        hx-swap="innerHTML"
+      >
+        <p>Loading...</p>
       </div>
     </div>
   </div>
