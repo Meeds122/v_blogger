@@ -29,8 +29,8 @@ fn main() {
     mut app := &App{
 		port:			8080
 		article_db:		sqlite.connect('articles.db') or { panic(err) }
-		tab_title:		'A Vlang Diary'
-		title:			'A V Programming Language Diary'
+		tab_title:		'A V Diary'
+		title:			'A V-lang Diary'
     }
 
 	sql app.article_db {
@@ -60,6 +60,7 @@ fn main() {
 // 		3. Edit functions in manage posts
 // 		4. Import Database
 // 		5. Manage Admins
+// 		6. Upload images
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
@@ -497,6 +498,17 @@ pub fn (app &App) newpost(mut ctx Context) veb.Result {
 }
 
 pub fn (app &App) comments(mut ctx Context) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+	
+	title := app.title
+	tab_title := app.tab_title
+	return $veb.html()
+}
+
+pub fn (app &App) uploadimage(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
