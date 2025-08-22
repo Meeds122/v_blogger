@@ -1,4 +1,4 @@
-<div class="post-item">
+<div id="stub-@c_id" class="post-item">
     <div>
         <p><strong>User:</strong> @c_name</p>
         <p><strong>Email:</strong> @c_email</p>
@@ -6,6 +6,6 @@
         <p><strong>Date:</strong> @c_date</p>
     </div>
     <div class="actions">
-        <button hx-delete="/comment/@c_id" hx-swap="outerHTML">Delete</button>
+        <button hx-delete="/comment/@c_id" hx-target="#stub-@c_id" hx-swap="innerHTML">Delete</button>
     </div>
 </div>
