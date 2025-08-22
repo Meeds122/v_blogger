@@ -368,6 +368,39 @@ pub fn (app &App) delete_post(mut ctx Context, id int) veb.Result {
 	return ctx.html('<p>Deleted</p>')
 }
 
+// TODO
+@['/managepost/draft/:id'; put]
+pub fn (app &App) swap_draft(mut ctx Context, id int) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	return ctx.no_content()
+}
+
+// TODO
+@['/managepost/:id'; put]
+pub fn (app &App) update_post(mut ctx Context, id int) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	return ctx.no_content()
+}
+
+// TODO
+@['/managepost/:id'; get]
+pub fn (app &App) update_post_page(mut ctx Context, id int) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	return ctx.no_content()
+}
+
 @['/manageposts/all'; get]
 pub fn (app &App) manage_all_posts (mut ctx Context) veb.Result{
 	// Admin Gate
@@ -388,9 +421,14 @@ pub fn (app &App) manage_all_posts (mut ctx Context) veb.Result{
 
 	mut content := ''
 	for post in posts {
+		mut title := ''
+		if post.draft {
+			title = 'DRAFT - '
+		}
+		title += post.title
 		content += make_managepost_stub(
 			post.post_id,
-			post.title
+			title
 		)
 	}
 
@@ -495,19 +533,6 @@ fn johanns_maw (text string) string {
 		'"': '&quot'
 		"'": '&#x27'
 	}
-	
-	// Did some testing and didn't seem to improve speeds compared to slow path for even large blocks of PT vs HTML
-	// mut fast_path := true
-	// for key in banned_chars.keys(){
-	// 	if key.bytes()[0] in text.bytes(){
-	// 		fast_path = false
-	// 		break
-	// 	}
-	// }
-
-	// if fast_path {
-	// 	return text
-	// }
 
 	mut return_text := ''
 
