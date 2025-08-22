@@ -1,0 +1,14 @@
+<div id="stub-@post_id" class="post-item">
+    <p>@post_title</p>
+    <div class="actions">
+        <button onclick="location.href='/post/@post_id';">View</button>
+        <button onclick="location.href='/edit/@post_id';">Edit</button>
+        <button 
+            hx-delete="/managepost/@post_id"
+            hx-target="#stub-@post_id"
+            hx-swap="innerHTML"
+            >
+            Delete
+        </button>
+    </div>
+</div>

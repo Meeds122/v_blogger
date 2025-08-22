@@ -29,7 +29,7 @@
   <div class="container">
     <div class="form-container">
       <h2>Write New Blog Post</h2>
-      <form hx-post="/publish" hx-target="#results" hx-swap="innerHTML">
+      <form hx-post="/publish" hx-target="#results" hx-swap="outerHTML">
         <!-- Prevent implicit submission of the form https://stackoverflow.com/a/51507806 -->
         <button type="submit" disabled style="display: none" aria-hidden="true"></button>
         <label for="title">Title</label>
@@ -38,8 +38,7 @@
         <textarea required name="summary" id="excerpt" placeholder="Short summary of the post"></textarea>
         <label for="content">Content</label>
         <textarea required name="content" id="content" placeholder="Full content of the post"></textarea>
-        <button type="submit">Save Post</button>
-        <p style="text-align: center;" id="results"></p>
+        <button id="results" type="submit">Save Post</button>
       </div>
     </div>
   </div>

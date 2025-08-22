@@ -96,15 +96,19 @@ pub fn (app &App) check_login (mut ctx Context) bool {
 	return true
 }
 
-// -------------------
-// -- Public Routes -- 
-// -------------------
+// -----------------------------
+// -- Public Template Service --
+// -----------------------------
 
 pub fn (app &App) index(mut ctx Context) veb.Result {
 	title := app.title
 	tab_title := app.tab_title
 	return $veb.html()
 }
+
+// -------------------
+// -- Public Routes -- 
+// -------------------
 
 // hitting this endpoint with no get parameters yields all posts
 // including ?from=&to= will yield a set of those posts.
@@ -229,9 +233,9 @@ pub fn (app &App) comment(mut ctx Context) veb.Result {
 
 	new_comment := Comment {
 		submitted: time.now().unix()
-		name: basic_escape_html(ctx.form['name'])
-		email: basic_escape_html(ctx.form['email'])
-		message: basic_escape_html(ctx.form['message'])
+		name: johanns_maw(ctx.form['name'])
+		email: johanns_maw(ctx.form['email'])
+		message: johanns_maw(ctx.form['message'])
 	}
 
 	sql app.article_db {
@@ -264,7 +268,7 @@ pub fn (app &App) publish(mut ctx Context) veb.Result {
 		return ctx.redirect('/', typ: .see_other)
 	}
 	new_post := Post {
-		draft: true
+		draft: false
 		created: time.now().unix()
 		updated: time.now().unix()
 		title: ctx.form['title']
@@ -272,11 +276,11 @@ pub fn (app &App) publish(mut ctx Context) veb.Result {
 		content: ctx.form['content']
 	}
 
-	sql app.article_db {
+	post_id := sql app.article_db {
 		insert new_post into Post
     } or { panic(err) }
 
-	return ctx.html('Post Succesful')
+	return ctx.html('<button onclick="location.href = \'/post/${post_id}\';">View Post</button><p style="text-align: center;">Success!</p>')
 }
 
 @['/export'; get; post]
@@ -347,6 +351,53 @@ pub fn (app &App) manage_comment(mut ctx Context, id int) veb.Result {
 	return ctx.html('<p>Deleted</p>')
 }
 
+@['/managepost/:id'; delete]
+pub fn (app &App) delete_post(mut ctx Context, id int) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	sql app.article_db {
+		delete from Post where post_id == id
+	} or { panic(err) }
+
+	return ctx.html('<p>Deleted</p>')
+}
+
+@['/manageposts/all'; get]
+pub fn (app &App) manage_all_posts (mut ctx Context) veb.Result{
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	mut posts := sql app.article_db {
+		select from Post
+	} or { panic(err) }
+
+	if posts.len == 0 {
+		return ctx.html('<p>No Posts</p>')
+	}
+
+	// Sort into newest comment first.
+	posts.sort(a.created > b.created)
+
+	mut content := ''
+	for post in posts {
+		content += make_managepost_stub(
+			post.post_id,
+			post.title
+		)
+	}
+
+	return ctx.html(content)
+}
+
+// ------------------------------
+// -- Private Template Service --
+// ------------------------------ 
+
 pub fn (app &App) admin(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
@@ -358,6 +409,7 @@ pub fn (app &App) admin(mut ctx Context) veb.Result {
 	return $veb.html()
 }
 
+// TODO
 pub fn (app &App) import(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
@@ -369,6 +421,7 @@ pub fn (app &App) import(mut ctx Context) veb.Result {
 	return $veb.html()
 }
 
+// TODO
 pub fn (app &App) manageadmins(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
@@ -380,6 +433,7 @@ pub fn (app &App) manageadmins(mut ctx Context) veb.Result {
 	return $veb.html()
 }
 
+// TODO
 pub fn (app &App) manageposts(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
@@ -426,8 +480,12 @@ fn make_comment_stub (c_id int, c_name string, c_email string, c_comment string,
 	return $tmpl('templates/comment_stub.html')
 }
 
+fn make_managepost_stub (post_id int, post_title string) string {
+	return $tmpl('templates/manageposts_stub.html')
+}
+
 // This function reminds me of python string maipulation and now I feel gross. 
-fn basic_escape_html (text string) string {
+fn johanns_maw (text string) string {
 	banned_chars := {
 		'&': '&amp'
 		'<': '&lt'
@@ -435,17 +493,19 @@ fn basic_escape_html (text string) string {
 		'"': '&quot'
 		"'": '&#x27'
 	}
-	mut fast_path := true
-	for key in banned_chars.keys(){
-		if key.bytes()[0] in text.bytes(){
-			fast_path = false
-			break
-		}
-	}
+	
+	// Did some testing and didn't seem to improve speeds compared to slow path for even large blocks of PT vs HTML
+	// mut fast_path := true
+	// for key in banned_chars.keys(){
+	// 	if key.bytes()[0] in text.bytes(){
+	// 		fast_path = false
+	// 		break
+	// 	}
+	// }
 
-	if fast_path {
-		return text
-	}
+	// if fast_path {
+	// 	return text
+	// }
 
 	mut return_text := ''
 

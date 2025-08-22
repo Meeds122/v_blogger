@@ -29,28 +29,8 @@
   <div class="container">
     <div class="manage-container">
       <h2>Manage Existing Posts</h2>
-      <div class="post-list">
-        <div class="post-item">
-          <p>The Future of AI in 2025</p>
-          <div class="actions">
-            <button onclick="alert('Edit post! (This is a demo)')">Edit</button>
-            <button onclick="alert('Delete post! (This is a demo)')">Delete</button>
-          </div>
-        </div>
-        <div class="post-item">
-          <p>Quantum Computing Breakthroughs</p>
-          <div class="actions">
-            <button onclick="alert('Edit post! (This is a demo)')">Edit</button>
-            <button onclick="alert('Delete post! (This is a demo)')">Delete</button>
-          </div>
-        </div>
-        <div class="post-item">
-          <p>Sustainable Tech Innovations</p>
-          <div class="actions">
-            <button onclick="alert('Edit post! (This is a demo)')">Edit</button>
-            <button onclick="alert('Delete post! (This is a demo)')">Delete</button>
-          </div>
-        </div>
+      <div class="post-list" hx-trigger="load" hx-get="/manageposts/all" hx-swap="innerHTML">
+        <p>Loading...</p>
       </div>
     </div>
   </div>
