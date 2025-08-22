@@ -56,7 +56,10 @@ fn main() {
 // 			- setup secure.db
 // 			- setup account registration
 // 			- setup login checking
-// 		2. Draft handling
+// 		2. Draft handling in manage posts and new post
+// 		3. Edit functions in manage posts
+// 		4. Import Database
+// 		5. Manage Admins
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
@@ -433,7 +436,6 @@ pub fn (app &App) manageadmins(mut ctx Context) veb.Result {
 	return $veb.html()
 }
 
-// TODO
 pub fn (app &App) manageposts(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
