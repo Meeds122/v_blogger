@@ -62,11 +62,11 @@ fn main() {
 // TODOs:
 // 		1. Create Login, Sessions, auth validation middle ware
 // 			- Create and validate sessions
-//			- Set session cookie on long
+//			- Set session cookie on login
 // 			- Read session from cookie on middleware hit and validate
 // 			- setup secure.db
 // 			- setup account registration
-// 			- setup login checking
+//			- Insert user_id into manageadmins.html template for the change password form. 
 // 		2. Draft handling in manage posts and new post
 // 		3. Edit functions in manage posts
 // 		4. Import Database
@@ -478,13 +478,21 @@ pub fn (app &App) update_password (mut ctx Context, id int) veb.Result {
 		return ctx.redirect('/', typ: .see_other)
 	}
 
-	// verify existing password
-
 	// verify provided passwords match
 	if !(ctx.form['new_password'] == ctx.form['confirm_password']){
 		return ctx.html('<p>Server Response: Passwords do not match</p>')
 	}
 
+	// verify existing password
+	// I can't seem to find if ORM has a column select
+	current_password := sql app.admin_db {
+		select from Admin where user_id == id limit 1
+	} or { panic(err) }
+	bcrypt.compare_hash_and_password(ctx.form['current_password'].bytes(), current_password[0].password_hash.bytes()) or { 
+		// Some failure of some kind. Probably not match
+		return ctx.html('<p>Server Response: Current pasword match failure.')
+	}
+	
 	new_hash := bcrypt.generate_from_password(ctx.form['new_password'].bytes(), app.hash_cost) or { 
 		panic(err)
 	 }
