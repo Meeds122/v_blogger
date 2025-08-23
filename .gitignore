@@ -21,3 +21,4 @@ bin/
 
 # vweb and database
 *.js
+admins.db

@@ -6,6 +6,9 @@ import sqlite // V's SQLite wrapper. $ v install sqlite
 import time
 import strconv
 
+import crypto.hmac
+import crypto.bcrypt
+
 // Context is not shared between requests. It manages the request session
 pub struct Context {
     veb.Context
@@ -20,6 +23,8 @@ pub struct App {
 pub:
 	port		int
 	article_db	sqlite.DB
+	admin_db	sqlite.DB
+	hash_cost	int
 pub mut:
 	tab_title	string
 	title		string
@@ -29,14 +34,20 @@ fn main() {
     mut app := &App{
 		port:			8080
 		article_db:		sqlite.connect('articles.db') or { panic(err) }
+		admin_db:		sqlite.connect('admins.db') or { panic(err) }
 		tab_title:		'A V Diary'
 		title:			'A V-lang Diary'
+		hash_cost:		16
     }
 
 	sql app.article_db {
         create table Post
 		create table Comment
     } or { panic(err) }
+
+	sql app.admin_db {
+		create table Admin
+	} or { panic(err) }
 
 	app.handle_static('static', true) or { panic(err) }
 
@@ -90,6 +101,12 @@ pub:
 	name		string
 	email 		string
 	message		string
+}
+
+pub struct Admin {
+	user_id			int 	@[primary; unique; serial]
+	username 		string
+	password_hash	string
 }
 
 // ----------------
@@ -251,14 +268,30 @@ pub fn (app &App) comment(mut ctx Context) veb.Result {
 
 @['/login'; post]
 pub fn (app &App) login(mut ctx Context) veb.Result {
-	username := ctx.form['username']
-	password := ctx.form['password']
-	if (username == 'admin') && (password == 'admin'){
-		return ctx.redirect('/admin', typ: .see_other)
-	}
-	else {
+	in_username := ctx.form['username']
+	in_password := ctx.form['password']
+
+	user := sql app.admin_db {
+		select from Admin where username == in_username limit 1
+	} or { panic(err) }
+
+	// Might be an info leak via timing here
+	// Also, need to check len vs max_len because len > max_len == easy DoS
+	if user.len != 1 {
 		return ctx.redirect('/', typ: .see_other)
 	}
+	else{
+		// Error for standard case handling WTF is this interface.
+		bcrypt.compare_hash_and_password(in_password.bytes(), user[0].password_hash.bytes()) or { 
+			// Some failure of some kind. Probably not match
+			return ctx.redirect('/', typ: .see_other)
+		}
+		// No failure, probably does match, go admin
+		return ctx.redirect('/admin', typ: .see_other)
+
+	}
+	return ctx.redirect('/', typ: .see_other)
+
 }
 
 // --------------------
@@ -434,6 +467,66 @@ pub fn (app &App) manage_all_posts (mut ctx Context) veb.Result{
 	}
 
 	return ctx.html(content)
+}
+
+
+
+@['/manageadmins/password/:id'; patch]
+pub fn (app &App) update_password (mut ctx Context, id int) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	// verify existing password
+
+	// verify provided passwords match
+	if !(ctx.form['new_password'] == ctx.form['confirm_password']){
+		return ctx.html('<p>Server Response: Passwords do not match</p>')
+	}
+
+	new_hash := bcrypt.generate_from_password(ctx.form['new_password'].bytes(), app.hash_cost) or { 
+		panic(err)
+	 }
+
+	sql app.admin_db {
+		update Admin set password_hash = new_hash where user_id == id
+	} or { panic(err) }
+
+	return ctx.html('<p>Password Updated</p>')
+}
+
+@['/manageadmins'; post]
+pub fn (app &App) new_user (mut ctx Context) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	users := sql app.admin_db {
+		select from Admin
+	} or { panic(err) }
+
+	for user in users{
+		if user.username == ctx.form['username']{
+			return ctx.html('<p>Account already exists</p>')
+		}
+	}
+
+	new_hash := bcrypt.generate_from_password(ctx.form['password'].bytes(), app.hash_cost) or { 
+		panic(err)
+	}
+
+	new_user := Admin {
+		username: ctx.form['username']
+		password_hash: new_hash
+	}
+
+	sql app.admin_db {
+		insert new_user into Admin
+	} or { panic(err) }
+
+	return ctx.html('<p>Account Created</p>')
 }
 
 // ------------------------------

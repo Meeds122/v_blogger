@@ -31,24 +31,73 @@
       <h2>Manage Admins</h2>
       <div>
         <h3>Change Password</h3>
-        <label for="current-password">Current Password</label>
-        <input type="password" id="current-password" placeholder="Current Password">
-        <label for="new-password">New Password</label>
-        <input type="password" id="new-password" placeholder="New Password">
-        <label for="confirm-password">Confirm New Password</label>
-        <input type="password" id="confirm-password" placeholder="Confirm New Password">
-        <button onclick="alert('Password changed! (This is a demo)')">Change Password</button>
+        <form id="password-update" hx-patch="/manageadmins/password/1" hx-swap="outerHTML">
+          <label for="current-password">Current Password</label>
+          <input required name="current_password" type="password" id="current-password" placeholder="Current Password" autocomplete="current-password">
+          <label for="new-password">New Password</label>
+          <input required minlength="14" name="new_password" type="password" id="new-password" placeholder="New Password" autocomplete="new-password">
+          <label for="confirm-password">Confirm New Password</label>
+          <input required minlength="14" name="confirm_password" type="password" id="confirm-password" placeholder="Confirm New Password" autocomplete="new-password">
+          <p id="password-mismatch-message"></p>
+          <button type="submit">Change Password</button>
+        </form>
       </div>
       <div style="margin-top: 2rem;">
-        <h3>Create New Admin</h3>
-        <label for="new-admin-username">Username</label>
-        <input type="text" id="new-admin-username" placeholder="New Admin Username">
-        <label for="new-admin-password">Password</label>
-        <input type="password" id="new-admin-password" placeholder="New Admin Password">
-        <button onclick="alert('Admin created! (This is a demo)')">Create Admin</button>
+        <h3>Create New Admin - TODO</h3>
+        <form id="new-user" hx-post="/manageadmins" hx-swap="outerHTML">
+          <label for="new-admin-username">Username</label>
+          <input name="username" type="text" id="new-admin-username" placeholder="New Admin Username">
+          <label for="new-admin-password">Password</label>
+          <input name="password" type="password" id="new-admin-password" placeholder="New Admin Password">
+          <p id="new-user-message"></p>
+          <button type="submit">Create Admin</button>
+        </form>
       </div>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const passwordInput = document.getElementById('new-password');
+      const confirmPasswordInput = document.getElementById('confirm-password');
+      const messageElement = document.getElementById('password-mismatch-message');
+
+      function checkPasswordsMatch() {
+        if (passwordInput.value !== confirmPasswordInput.value) {
+          messageElement.textContent = 'Passwords do NOT match!';
+        } else {
+          messageElement.textContent = ''; // Clear message if they match
+        }
+      }
+
+      // Add event listeners to check on input
+      passwordInput.addEventListener('keyup', checkPasswordsMatch);
+      confirmPasswordInput.addEventListener('keyup', checkPasswordsMatch);
+
+      // Optional: Prevent form submission if passwords don't match
+      const form = document.getElementById('password-update');
+      form.addEventListener('submit', function(event) {
+        if (passwordInput.value !== confirmPasswordInput.value) {
+          event.preventDefault(); // Stop form submission
+          messageElement.textContent = 'Passwords must match to submit!';
+        }
+        else {
+          messageElement.textContent = 'Submitted, please wait.';
+        }
+      });
+    });
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const messageElement = document.getElementById('new-user-message');
+      // Optional: Prevent form submission if passwords don't match
+      const form = document.getElementById('new-user');
+      form.addEventListener('submit', function(event) {
+        messageElement.textContent = 'Submitted, please wait.';
+      });
+    });
+  </script>
 
   <script>
     // Dark mode toggle
