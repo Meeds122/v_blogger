@@ -14,6 +14,8 @@ pub struct Context {
     veb.Context
 pub mut:
 	is_admin bool
+	session_validated bool
+	session Session
 }
 
 // App is shared by all requests. It manages the veb server in whole. 
@@ -21,13 +23,15 @@ pub struct App {
 	veb.StaticHandler
 	veb.Middleware[Context]
 pub:
-	port		int
-	article_db	sqlite.DB
-	admin_db	sqlite.DB
-	hash_cost	int
-pub mut:
+	port			int
+	article_db		sqlite.DB
+	admin_db		sqlite.DB
+	hash_cost		int
+	session_expire 	int 		// Session expiration in seconds. 
 	tab_title	string
 	title		string
+pub mut:
+	sessions []Session
 }
 
 fn main() {
@@ -38,6 +42,8 @@ fn main() {
 		tab_title:		'A V Diary'
 		title:			'A V-lang Diary'
 		hash_cost:		16
+		session_expire: 172800 // 2 hours
+		sessions:		[]Session{}
     }
 
 	sql app.article_db {
@@ -107,6 +113,14 @@ pub struct Admin {
 	user_id			int 	@[primary; unique; serial]
 	username 		string
 	password_hash	string
+}
+
+pub struct Session {
+pub:
+	session_id	int
+	user_id		int
+	token		string
+	expiration	i64		// Epoch timestamp of when expire. 
 }
 
 // ----------------
@@ -469,8 +483,6 @@ pub fn (app &App) manage_all_posts (mut ctx Context) veb.Result{
 	return ctx.html(content)
 }
 
-
-
 @['/manageadmins/password/:id'; patch]
 pub fn (app &App) update_password (mut ctx Context, id int) veb.Result {
 	// Admin Gate
@@ -492,7 +504,7 @@ pub fn (app &App) update_password (mut ctx Context, id int) veb.Result {
 		// Some failure of some kind. Probably not match
 		return ctx.html('<p>Server Response: Current pasword match failure.')
 	}
-	
+
 	new_hash := bcrypt.generate_from_password(ctx.form['new_password'].bytes(), app.hash_cost) or { 
 		panic(err)
 	 }
