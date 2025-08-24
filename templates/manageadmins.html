@@ -30,8 +30,8 @@
     <div class="form-container">
       <h2>Manage Admins</h2>
       <div>
-        <h3>Change Password</h3>
-        <form id="password-update" hx-patch="/manageadmins/password/1" hx-swap="outerHTML">
+        <h3>Change My Password</h3>
+        <form id="password-update" hx-patch="/manageadmins/password/@current_user_id" hx-swap="outerHTML">
           <label for="current-password">Current Password</label>
           <input required name="current_password" type="password" id="current-password" placeholder="Current Password" autocomplete="current-password">
           <label for="new-password">New Password</label>
@@ -43,7 +43,7 @@
         </form>
       </div>
       <div style="margin-top: 2rem;">
-        <h3>Create New Admin - TODO</h3>
+        <h3>Create New Admin</h3>
         <form id="new-user" hx-post="/manageadmins" hx-swap="outerHTML">
           <label for="new-admin-username">Username</label>
           <input name="username" type="text" id="new-admin-username" placeholder="New Admin Username">
@@ -52,6 +52,10 @@
           <p id="new-user-message"></p>
           <button type="submit">Create Admin</button>
         </form>
+      </div>
+      <div style="margin-top: 2rem;">
+        <h3>Manage Existing Admins</h3>
+        <p hx-get="/manageadmins/all" hx-trigger="load" hx-swap="outerHTML">Loading...</p>
       </div>
     </div>
   </div>

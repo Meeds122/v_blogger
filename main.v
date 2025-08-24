@@ -48,7 +48,7 @@ fn main() {
 		admin_db:		sqlite.connect('admins.db') or { panic(err) }
 		tab_title:		'A V Diary'
 		title:			'A V-lang Diary'
-		hash_cost:		14		// How long to reset password / create new user / sign on. Min 10. Rec 12. 
+		hash_cost:		14		// How long to reset password / create new user / sign on. Min 10. Rec 12.
 		session_expire: 720		// 2 hours
 		session_secret: 'JustForMoreEntropy,NotReallySecret'
 		sessions:		[]Session{}
@@ -74,17 +74,11 @@ fn main() {
 // When deploying to prod: $ v -prod -o v_blogger .
 
 // TODOs:
-// 		1. Sessions, auth validation middle ware
-// 			- Validate sessions
-// 			- Read session from cookie on middleware hit and validate
-// 			- setup account registration
-//			- Insert user_id into manageadmins.html template for the change password form. 
 // 		2. Draft handling in manage posts and new post
 // 		3. Edit functions in manage posts
 // 		4. Import Database
-// 		5. Manage Admins
-// 		6. Upload images
-//		7. Initial config page
+// 		5. Upload and delete images
+//		6. Initial config page
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
@@ -144,6 +138,7 @@ pub fn (mut app App) check_login (mut ctx Context) bool {
 		if (cookie_val == app.sessions[i].token) && !Session.is_expired(app.sessions[i]) {
 			ctx.session = app.sessions[i]
 			ctx.is_admin = true
+			ctx.session_validated = true
 			return true
 		}
 		// clean up old expired sessions otherwise app.sessions can grow without bound.
@@ -536,6 +531,10 @@ pub fn (app &App) update_password (mut ctx Context, id int) veb.Result {
 		return ctx.redirect('/', typ: .see_other)
 	}
 
+	if ctx.session.user_id != id {
+		return ctx.html('<p>Unable to update another existing admin\'s password')
+	}
+
 	// verify provided passwords match
 	if !(ctx.form['new_password'] == ctx.form['confirm_password']){
 		return ctx.html('<p>Server Response: Passwords do not match</p>')
@@ -595,6 +594,51 @@ pub fn (app &App) new_user (mut ctx Context) veb.Result {
 	return ctx.html('<p>Account Created</p>')
 }
 
+// TODO
+@['/manageadmin/delete/:id'; delete]
+pub fn (app &App) delete_user (mut ctx Context, id int) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	if ctx.session.user_id == id {
+		return ctx.html('<p>Error: Cannot delete self</p>')
+	}
+
+	sql app.admin_db {
+		delete from Admin where user_id == id
+	} or { panic(err) }
+
+	return ctx.html('<p>Account Deleted</p>')
+}
+
+// TODO
+@['/manageadmins/all'; get]
+pub fn (app &App) all_users (mut ctx Context, id int) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	users := sql app.admin_db {
+		select from Admin
+	} or { panic(err) }
+
+	mut content := ''
+	for user in users {
+		if user.user_id == ctx.session.user_id {
+			continue
+		}
+		content += make_users_stub(user.user_id, user.username)
+	}
+	if content.len == 0 {
+		content = '<p>No other user accounts available to manage.</p>'
+	}
+
+	return ctx.html(content)
+}
+
 // ------------------------------
 // -- Private Template Service --
 // ------------------------------ 
@@ -629,6 +673,7 @@ pub fn (app &App) manageadmins(mut ctx Context) veb.Result {
 		return ctx.redirect('/', typ: .see_other)
 	}
 	
+	current_user_id := ctx.session.user_id
 	title := app.title
 	tab_title := app.tab_title
 	return $veb.html()
@@ -693,6 +738,10 @@ fn make_comment_stub (c_id int, c_name string, c_email string, c_comment string,
 
 fn make_managepost_stub (post_id int, post_title string) string {
 	return $tmpl('templates/manageposts_stub.html')
+}
+
+fn make_users_stub (id int, username string) string {
+	return $tmpl('templates/admin_stub.html')
 }
 
 // This function reminds me of python string maipulation and now I feel gross. 
