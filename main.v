@@ -79,6 +79,8 @@ fn main() {
 // 		4. Import Database
 // 		5. Upload and delete images
 //		6. Initial config page
+//			- Config DB/file. TOML?
+//		7. Config update and server control?
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
@@ -666,7 +668,6 @@ pub fn (app &App) import(mut ctx Context) veb.Result {
 	return $veb.html()
 }
 
-// TODO
 pub fn (app &App) manageadmins(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
@@ -712,6 +713,7 @@ pub fn (app &App) comments(mut ctx Context) veb.Result {
 	return $veb.html()
 }
 
+// TODO
 pub fn (app &App) uploadimage(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
