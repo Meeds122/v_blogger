@@ -48,8 +48,8 @@ fn main() {
 		admin_db:		sqlite.connect('admins.db') or { panic(err) }
 		tab_title:		'A V Diary'
 		title:			'A V-lang Diary'
-		hash_cost:		14		// How long to reset password / create new user / sign on
-		session_expire: 172800	// 2 hours
+		hash_cost:		14		// How long to reset password / create new user / sign on. Min 10. Rec 12. 
+		session_expire: 720		// 2 hours
 		session_secret: 'JustForMoreEntropy,NotReallySecret'
 		sessions:		[]Session{}
     }
@@ -74,11 +74,9 @@ fn main() {
 // When deploying to prod: $ v -prod -o v_blogger .
 
 // TODOs:
-// 		1. Create Login, Sessions, auth validation middle ware
-// 			- Create and validate sessions
-//			- Set session cookie on login
+// 		1. Sessions, auth validation middle ware
+// 			- Validate sessions
 // 			- Read session from cookie on middleware hit and validate
-// 			- setup secure.db
 // 			- setup account registration
 //			- Insert user_id into manageadmins.html template for the change password form. 
 // 		2. Draft handling in manage posts and new post
@@ -86,6 +84,7 @@ fn main() {
 // 		4. Import Database
 // 		5. Manage Admins
 // 		6. Upload images
+//		7. Initial config page
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
@@ -94,7 +93,7 @@ fn main() {
 
 // ------------
 // -- Models --
-// ------------
+// -----------
 
 pub struct Post {
 pub:
@@ -133,8 +132,36 @@ pub:
 // ----------------
 // -- Middleware --
 // ----------------
-pub fn (app &App) check_login (mut ctx Context) bool {
-    ctx.is_admin = true
+
+pub fn (mut app App) check_login (mut ctx Context) bool {
+	// No token cookie, no access
+	cookie_val := ctx.get_cookie('token') or { 
+		ctx.is_admin = false
+		return true
+	}
+	// Yes token cookie, not session is expired.
+	for i in 0..app.sessions.len {
+		if (cookie_val == app.sessions[i].token) && !Session.is_expired(app.sessions[i]) {
+			ctx.session = app.sessions[i]
+			ctx.is_admin = true
+			return true
+		}
+		// clean up old expired sessions otherwise app.sessions can grow without bound.
+		else if Session.is_expired(app.sessions[i]){
+			app.sessions.delete(i)
+		}
+	}
+	// The token cookie exists but is not valid
+	ctx.set_cookie(http.Cookie{
+				name: 'token'
+				value: ''
+				path: '/'
+				same_site: SameSite.same_site_strict_mode
+				http_only: true
+				max_age: -1 // Delete cookie
+    		})
+	
+	ctx.is_admin = false
 	return true
 }
 
@@ -319,8 +346,8 @@ pub fn (mut app App) login(mut ctx Context) veb.Result {
 				// secure: true // Requires HTTPS. Dunno how that would work with a reverse proxy
 				same_site: SameSite.same_site_strict_mode
 				http_only: true
+				// expires: time.unix(time.now().unix() + app.session_expire)
     		})
-		$dbg
 		return ctx.redirect('/admin', typ: .see_other)
 
 	}
@@ -710,7 +737,7 @@ fn Session.new(user_id int, session_secret string, ttl i64) !Session {
 	}
 }
 
-fn Session.is_expired (session Session) bool {
+fn Session.is_expired(session Session) bool {
 	now := time.now().unix()
 	match true {
 		now > session.expiration { return true }
