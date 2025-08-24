@@ -6,8 +6,14 @@ import sqlite // V's SQLite wrapper. $ v install sqlite
 import time
 import strconv
 
-import crypto.hmac
 import crypto.bcrypt
+
+import crypto.hmac
+import crypto.sha512
+import rand
+import encoding.base64
+
+import net.http { Cookie, SameSite }
 
 // Context is not shared between requests. It manages the request session
 pub struct Context {
@@ -28,8 +34,9 @@ pub:
 	admin_db		sqlite.DB
 	hash_cost		int
 	session_expire 	int 		// Session expiration in seconds. 
-	tab_title	string
-	title		string
+	session_secret	string
+	tab_title		string
+	title			string
 pub mut:
 	sessions []Session
 }
@@ -41,8 +48,9 @@ fn main() {
 		admin_db:		sqlite.connect('admins.db') or { panic(err) }
 		tab_title:		'A V Diary'
 		title:			'A V-lang Diary'
-		hash_cost:		16
-		session_expire: 172800 // 2 hours
+		hash_cost:		14		// How long to reset password / create new user / sign on
+		session_expire: 172800	// 2 hours
+		session_secret: 'JustForMoreEntropy,NotReallySecret'
 		sessions:		[]Session{}
     }
 
@@ -117,7 +125,6 @@ pub struct Admin {
 
 pub struct Session {
 pub:
-	session_id	int
 	user_id		int
 	token		string
 	expiration	i64		// Epoch timestamp of when expire. 
@@ -281,7 +288,7 @@ pub fn (app &App) comment(mut ctx Context) veb.Result {
 }
 
 @['/login'; post]
-pub fn (app &App) login(mut ctx Context) veb.Result {
+pub fn (mut app App) login(mut ctx Context) veb.Result {
 	in_username := ctx.form['username']
 	in_password := ctx.form['password']
 
@@ -301,11 +308,23 @@ pub fn (app &App) login(mut ctx Context) veb.Result {
 			return ctx.redirect('/', typ: .see_other)
 		}
 		// No failure, probably does match, go admin
+		session := Session.new(user[0].user_id, app.session_secret, app.session_expire) or { 
+			return ctx.redirect('/', typ: .see_other)
+		 }
+		app.sessions << session
+		ctx.set_cookie(http.Cookie{
+				name: 'token'
+				value: session.token
+				path: '/'
+				// secure: true // Requires HTTPS. Dunno how that would work with a reverse proxy
+				same_site: SameSite.same_site_strict_mode
+				http_only: true
+    		})
+		$dbg
 		return ctx.redirect('/admin', typ: .see_other)
 
 	}
 	return ctx.redirect('/', typ: .see_other)
-
 }
 
 // --------------------
@@ -670,4 +689,33 @@ fn johanns_maw (text string) string {
 		}
 	}
 	return return_text
+}
+
+fn Session.new_token(session_secret string) !string {
+	// crypto func sha512.sum512(f_bytes).hex()	
+	return base64.encode(
+					hmac.new(
+							session_secret.bytes(), 
+							rand.bytes(128) or {return err}, 
+							sha512.sum512, 
+							128)
+						)
+}
+
+fn Session.new(user_id int, session_secret string, ttl i64) !Session {
+	return Session {
+		user_id: user_id
+		token: Session.new_token(session_secret) or { panic(err) }
+		expiration: time.now().unix() + ttl
+	}
+}
+
+fn Session.is_expired (session Session) bool {
+	now := time.now().unix()
+	match true {
+		now > session.expiration { return true }
+		now == session.expiration { return true }
+		now < session.expiration { return false }
+		else { return true } // better safe than sorry
+	}
 }
