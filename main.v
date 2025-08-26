@@ -254,7 +254,7 @@ pub fn (app &App) post(mut ctx Context, id int) veb.Result {
 
 	// Dont let people get drafts from the /post endpoint unless administrator
 	if (draft == true) && (ctx.is_admin == false) {
-		return ctx.not_found()
+		return ctx.redirect('/', typ: .see_other)
 	}
 	else {
 		return $veb.html()
