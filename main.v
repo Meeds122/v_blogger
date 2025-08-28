@@ -59,6 +59,7 @@ fn main() {
 	// read config and set needs_setup
 	if !os.exists(app.config_file){
 		app.needs_setup = true
+		app.use(handler: app.setup_blog)
 	}
 	else {
 		app.needs_setup = false
@@ -96,6 +97,8 @@ fn main() {
 // 		4. Import Database
 // 		5. Upload and delete images
 //		6. Config update and server control? Reset to default?
+// 		7. Fix is_admin middleware to be immutable
+// 			- Move old session cleanup to login (should be infrequent.)
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
@@ -144,10 +147,32 @@ pub:
 // -- Middleware --
 // ----------------
 
+pub fn (app &App) setup_blog (mut ctx Context) bool {
+	if !app.needs_setup {
+		return true
+	}
+	else if ctx.Context.req.url != '/initialconfig' {
+		// Here be runtime errors
+		if ctx.Context.req.url.len > 5 {
+			if (ctx.Context.req.url[ctx.Context.req.url.len-3..ctx.Context.req.url.len] != '.js') || (ctx.Context.req.url[ctx.Context.req.url.len-4..ctx.Context.req.url.len] != '.css'){
+				// Need to exlude .js and .css files from the universal redirect.
+				return true
+			}
+		}
+		// Not any previous case, fall down to redir.
+		ctx.redirect('/initialconfig')
+		return false
+	}
+	else {
+		return true
+	}
+}
+
 pub fn (mut app App) check_login (mut ctx Context) bool {
 	// No token cookie, no access
 	cookie_val := ctx.get_cookie('token') or { 
 		ctx.is_admin = false
+		ctx.session_validated = false
 		return true
 	}
 	// Yes token cookie, not session is expired.
@@ -665,7 +690,41 @@ pub fn (mut app App) configure_app(mut ctx Context) veb.Result {
 		return ctx.redirect('/', typ: .see_other)
 	}
 
-	return ctx.no_content()
+	// Pull in form data
+	app.title = ctx.form['title']
+	app.tab_title = ctx.form['tab_title']
+	app.session_expire = 60 * strconv.atoi(ctx.form['session_timeout']) or { panic(err) }// comes in as minutes, is stored as seconds.
+	app.session_secret = ctx.form['session_secret']
+	username := ctx.form['initial_username']
+	password := ctx.form['initial_password']
+
+	// Create TOML config.
+	// file ops
+	mut byte_accumulator := 0
+	mut f := os.create(app.config_file) or { panic(err) }
+	println('file created')
+	byte_accumulator += f.writeln('tab_title = "${app.tab_title}"') or { panic(err) }
+	byte_accumulator += f.writeln('title = "${app.title}"') or { panic(err) }
+	byte_accumulator += f.writeln('session_expire = "${app.session_expire}"') or { panic(err) }
+	byte_accumulator += f.writeln('session_secret = "${app.session_secret}"') or { panic(err) }
+	f.close()
+
+	// Create admin account
+	new_hash := bcrypt.generate_from_password(password.bytes(), app.hash_cost) or { 
+		panic(err)
+	}
+	new_user := Admin {
+		username: username
+		password_hash: new_hash
+	}
+	sql app.admin_db {
+		insert new_user into Admin
+	} or { panic(err) }
+
+	// Set needs_setup to false and redir
+	app.needs_setup = false
+
+	return ctx.redirect('/', typ: .see_other)
 }
 
 // ------------------------------
