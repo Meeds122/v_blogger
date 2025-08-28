@@ -90,20 +90,18 @@ fn main() {
 // When deploying to prod: $ v -prod -o v_blogger .
 
 // TODOs:
-//		1. Initial config page
-//			- Config DB/file. TOML?
-// 		2. Draft handling in manage posts and new post
-// 		3. Edit functions in manage posts
-// 		4. Import Database
-// 		5. Upload and delete images
-//		6. Config update and server control? Reset to default?
-// 		7. Fix is_admin middleware to be immutable
+// 		1. Draft handling in manage posts and new post
+// 		2. Edit functions in manage posts
+// 		3. Import Database
+// 		4. Upload and delete images
+//		5. Config update and server control? Reset to default?
+// 		6. Fix is_admin middleware to be immutable
 // 			- Move old session cleanup to login (should be infrequent.)
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
 // 			- How to measure tho? Also, even though static handler is 1/2 as performant as template, it is very fast
-//		2. Caddy for HTTPS reverse proxy?
+//		2. Caddy for HTTPS reverse proxy? NGINX and use it to server statics too? Set cache times on htmx and css? 
 
 // ------------
 // -- Models --
