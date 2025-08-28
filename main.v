@@ -345,7 +345,7 @@ pub fn (mut app App) login(mut ctx Context) veb.Result {
 				// secure: true // Requires HTTPS. Dunno how that would work with a reverse proxy
 				same_site: SameSite.same_site_strict_mode
 				http_only: true
-				// expires: time.unix(time.now().unix() + app.session_expire)
+				// expires: time.unix(time.now().unix() + app.session_expire) // BUG? doesn't seem to work as documented. 
     		})
 		return ctx.redirect('/admin', typ: .see_other)
 
