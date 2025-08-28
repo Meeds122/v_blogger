@@ -1,0 +1,4 @@
+tab_title = "test tab title"
+title = "test title"
+session_expire = "720"
+session_secret = "super duper secret session entropy helper lol"

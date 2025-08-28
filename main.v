@@ -1,19 +1,21 @@
 module main
 
+// veb imports
 import veb
+import net.http { Cookie, SameSite }
 import sqlite // V's SQLite wrapper. $ v install sqlite
-
+// utilities
 import time
 import strconv
-
+import toml
+import os
+// password hashing
 import crypto.bcrypt
-
+// sessions
 import crypto.hmac
 import crypto.sha512
 import rand
 import encoding.base64
-
-import net.http { Cookie, SameSite }
 
 // Context is not shared between requests. It manages the request session
 pub struct Context {
@@ -30,29 +32,41 @@ pub struct App {
 	veb.Middleware[Context]
 pub:
 	port			int
+	config_file		string
 	article_db		sqlite.DB
 	admin_db		sqlite.DB
 	hash_cost		int
+pub mut:
+	needs_setup		bool 
+	tab_title		string
+	title			string		// true if we need to first time run (i.e. config.toml not exist.)
 	session_expire 	int 		// Session expiration in seconds. 
 	session_secret	string
-	tab_title		string
-	title			string
-pub mut:
-	sessions []Session
+	sessions 		[]Session
 }
 
 fn main() {
     mut app := &App{
 		port:			8080
+		config_file: 	'config.toml'
 		article_db:		sqlite.connect('articles.db') or { panic(err) }
 		admin_db:		sqlite.connect('admins.db') or { panic(err) }
-		tab_title:		'A V Diary'
-		title:			'A V-lang Diary'
 		hash_cost:		14		// How long to reset password / create new user / sign on. Min 10. Rec 12.
-		session_expire: 720		// 2 hours
-		session_secret: 'JustForMoreEntropy,NotReallySecret'
 		sessions:		[]Session{}
     }
+
+	// read config and set needs_setup
+	if !os.exists(app.config_file){
+		app.needs_setup = true
+	}
+	else {
+		app.needs_setup = false
+		doc := toml.parse_file(app.config_file) or { panic(err) }
+		app.tab_title = doc.value('tab_title').string()
+		app.title = doc.value('title').string()
+		app.session_expire = strconv.atoi(doc.value('session_expire').string()) or { panic(err) }
+		app.session_secret = doc.value('session_secret').string()
+	}
 
 	sql app.article_db {
         create table Post
@@ -80,7 +94,7 @@ fn main() {
 // 		3. Edit functions in manage posts
 // 		4. Import Database
 // 		5. Upload and delete images
-//		6. Config update and server control?
+//		6. Config update and server control? Reset to default?
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
