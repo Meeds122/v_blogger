@@ -699,7 +699,6 @@ pub fn (mut app App) configure_app(mut ctx Context) veb.Result {
 	// Create TOML config.
 	// file ops
 	mut f := os.create(app.config_file) or { panic(err) }
-	println('file created')
 	f.writeln('tab_title = "${app.tab_title}"') or { panic(err) }
 	f.writeln('title = "${app.title}"') or { panic(err) }
 	f.writeln('session_expire = "${app.session_expire}"') or { panic(err) }
