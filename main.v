@@ -74,13 +74,13 @@ fn main() {
 // When deploying to prod: $ v -prod -o v_blogger .
 
 // TODOs:
+//		1. Initial config page
+//			- Config DB/file. TOML?
 // 		2. Draft handling in manage posts and new post
 // 		3. Edit functions in manage posts
 // 		4. Import Database
 // 		5. Upload and delete images
-//		6. Initial config page
-//			- Config DB/file. TOML?
-//		7. Config update and server control?
+//		6. Config update and server control?
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
@@ -316,6 +316,8 @@ pub fn (mut app App) login(mut ctx Context) veb.Result {
 	in_username := ctx.form['username']
 	in_password := ctx.form['password']
 
+	login_failure := 'Login Failure'
+
 	user := sql app.admin_db {
 		select from Admin where username == in_username limit 1
 	} or { panic(err) }
@@ -323,17 +325,17 @@ pub fn (mut app App) login(mut ctx Context) veb.Result {
 	// Might be an info leak via timing here
 	// Also, need to check len vs max_len because len > max_len == easy DoS
 	if user.len != 1 {
-		return ctx.redirect('/', typ: .see_other)
+		return ctx.html(login_failure)
 	}
 	else{
 		// Error for standard case handling WTF is this interface.
 		bcrypt.compare_hash_and_password(in_password.bytes(), user[0].password_hash.bytes()) or { 
 			// Some failure of some kind. Probably not match
-			return ctx.redirect('/', typ: .see_other)
+			return ctx.html(login_failure)
 		}
 		// No failure, probably does match, go admin
 		session := Session.new(user[0].user_id, app.session_secret, app.session_expire) or { 
-			return ctx.redirect('/', typ: .see_other)
+			return ctx.html(login_failure)
 		 }
 		app.sessions << session
 		ctx.set_cookie(http.Cookie{
@@ -348,7 +350,7 @@ pub fn (mut app App) login(mut ctx Context) veb.Result {
 		return ctx.redirect('/admin', typ: .see_other)
 
 	}
-	return ctx.redirect('/', typ: .see_other)
+	return ctx.html(login_failure)
 }
 
 // --------------------
@@ -549,7 +551,7 @@ pub fn (app &App) update_password (mut ctx Context, id int) veb.Result {
 	} or { panic(err) }
 	bcrypt.compare_hash_and_password(ctx.form['current_password'].bytes(), current_password[0].password_hash.bytes()) or { 
 		// Some failure of some kind. Probably not match
-		return ctx.html('<p>Server Response: Current pasword match failure.')
+		return ctx.html('<p>Server Response: Current pasword match failure.</p>')
 	}
 
 	new_hash := bcrypt.generate_from_password(ctx.form['new_password'].bytes(), app.hash_cost) or { 

@@ -68,12 +68,13 @@
     <div id="login" class="page">
       <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem;">Login</h1>
       <div class="login-form">
-        <form action="/login" method="post">
+        <form hx-post="/login" hx-swap="innerHTML" hx-target="#login-results">
           <label for="username">Username</label>
           <input name="username" type="text" id="username" placeholder="Your Username">
           <label for="password">Password</label>
           <input name="password" type="password" id="password" placeholder="Your Password" autocomplete="current-password">
           <button type="submit">Log In</button>
+          <p id="login-results"></p>
         </form>
       </div>
     </div>
