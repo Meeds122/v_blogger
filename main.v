@@ -700,13 +700,12 @@ pub fn (mut app App) configure_app(mut ctx Context) veb.Result {
 
 	// Create TOML config.
 	// file ops
-	mut byte_accumulator := 0
 	mut f := os.create(app.config_file) or { panic(err) }
 	println('file created')
-	byte_accumulator += f.writeln('tab_title = "${app.tab_title}"') or { panic(err) }
-	byte_accumulator += f.writeln('title = "${app.title}"') or { panic(err) }
-	byte_accumulator += f.writeln('session_expire = "${app.session_expire}"') or { panic(err) }
-	byte_accumulator += f.writeln('session_secret = "${app.session_secret}"') or { panic(err) }
+	f.writeln('tab_title = "${app.tab_title}"') or { panic(err) }
+	f.writeln('title = "${app.title}"') or { panic(err) }
+	f.writeln('session_expire = "${app.session_expire}"') or { panic(err) }
+	f.writeln('session_secret = "${app.session_secret}"') or { panic(err) }
 	f.close()
 
 	// Create admin account
