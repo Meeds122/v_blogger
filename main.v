@@ -387,7 +387,7 @@ pub fn (mut app App) login(mut ctx Context) veb.Result {
 				http_only: true
 				// expires: time.unix(time.now().unix() + app.session_expire) // BUG? doesn't seem to work as documented. 
     		})
-		return ctx.redirect('/admin', typ: .see_other)
+		return ctx.html('<script>document.location="/admin";</script>')
 
 	}
 	return ctx.html(login_failure)
