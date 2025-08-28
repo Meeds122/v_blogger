@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@tab_title</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="htmx.min.js"></script>
+</head>
+<body data-theme="light">
+  <nav>
+    <div class="nav-container">
+      <h1>@title</h1>
+      <div class="nav-links">
+        <button class="theme-toggle" aria-label="Toggle dark mode">
+          <svg viewBox="0 0 20 20" class="sun-icon">
+            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 11-2 0 1 1 0 012 0zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 11-2 0 1 1 0 012 0zm-1-1H2a1 1 0 110-2h1a1 1 0 110 2z"/>
+          </svg>
+          <svg viewBox="0 0 20 20" class="moon-icon" style="display: none;">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="form-container">
+      <h2>Initial Setup Configuration</h2>
+      <form action="/initialconfig" method="post">
+        <p>Configure the initial settings for the system.</p>
+        <label for="title">Site Title - The title in the pages.</label>
+        <input required minlength="1" name="title" type="text" id="title" placeholder="e.g., A V-lang Blog">
+        <label for="tab-title">Tab Title - The title in the tab area.</label>
+        <input required minlength="1" name="tab_title" type="text" id="tab-title" placeholder="e.g., A V Blog">
+        <label for="session-timeout">Session Timeout (minutes)</label>
+        <input required name="session_timeout" type="number" id="session-timeout" value="120" min="2">
+        <label for="session-secret">Session Secret - This is used to increase entropy in session generation. You will not need to remember it.</label>
+        <input required minlength="20" name="session_secret" autocomplete="off" type="text" id="session-secret" placeholder="Enter random text">
+        <label for="initial-username">Initial Username</label>
+        <input required minlength="4" name="initial_username" autocomplete="username" type="text" id="initial-username" placeholder="e.g., admin">
+        <label for="initial-password">Initial Password</label>
+        <input required minlength="14" name="initial_password" autocomplete="new-password" type="password" id="initial-password" placeholder="Enter a secure password">
+        <button type="submit">Save Configuration</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Dark mode toggle
+    const themeToggle = document.querySelector('.theme-toggle');
+    const sunIcon = document.querySelector('.sun-icon');
+    const moonIcon = document.querySelector('.moon-icon');
+    const body = document.body;
+
+    // Load saved theme
+    if (localStorage.getItem('theme') === 'dark') {
+      body.setAttribute('data-theme', 'dark');
+      sunIcon.style.display = 'none';
+      moonIcon.style.display = 'block';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = body.getAttribute('data-theme') === 'dark';
+      body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      sunIcon.style.display = isDark ? 'block' : 'none';
+      moonIcon.style.display = isDark ? 'none' : 'block';
+      localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>

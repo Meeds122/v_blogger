@@ -1,5 +1,6 @@
 module main
 
+// All imports are in stdlib except sqlite.
 // veb imports
 import veb
 import net.http { Cookie, SameSite }
@@ -657,9 +658,31 @@ pub fn (app &App) all_users (mut ctx Context, id int) veb.Result {
 	return ctx.html(content)
 }
 
+@['/initialconfig'; post]
+pub fn (mut app App) configure_app(mut ctx Context) veb.Result {
+	// Setup Gate
+	if !app.needs_setup {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	return ctx.no_content()
+}
+
 // ------------------------------
 // -- Private Template Service --
 // ------------------------------ 
+
+@['/initialconfig'; get]
+pub fn (app &App) initialconfig(mut ctx Context) veb.Result {
+	// Setup Gate
+	if !app.needs_setup {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	title := app.title
+	tab_title := app.tab_title
+	return $veb.html()
+}
 
 pub fn (app &App) admin(mut ctx Context) veb.Result {
 	// Admin Gate
