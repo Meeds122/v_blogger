@@ -20,6 +20,5 @@ bin/
 .env
 
 # vweb and database
-*.js
-admins.db
+*.db
 *.toml

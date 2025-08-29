@@ -97,6 +97,8 @@ fn main() {
 //		5. Config update and server control? Reset to default?
 // 		6. Fix is_admin middleware to be immutable
 // 			- Move old session cleanup to login (should be infrequent.)
+// 		7. No delete first admin? 
+//		8. Unhook init setup middleware and/or restart app after init config?
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
