@@ -30,6 +30,7 @@ The following features are on the roadmap.
 
 
 Eventual features.
+- MFA
 - Front page pagination
 - Post search
 - SEO improvements
