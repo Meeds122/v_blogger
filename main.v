@@ -90,6 +90,7 @@ fn main() {
 // When deploying to prod: $ v -prod -o v_blogger .
 
 // TODOs:
+//		0. Setup run_at for the veb server. Currently listens on 0.0.0.0:8080
 // 		1. Draft handling in manage posts and new post
 // 		2. Edit functions in manage posts
 // 		3. Import Database
