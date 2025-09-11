@@ -83,7 +83,7 @@ fn main() {
 
 	app.use(handler: app.check_login)
     
-    veb.run[App, Context](mut app, app.port)
+    veb.run_at[App, Context](mut app, host: 'localhost' port: app.port family: .ip)!
 }
 
 // fyi, V has a live reload feature for veb dev: $ v -d veb_livereload watch run .
