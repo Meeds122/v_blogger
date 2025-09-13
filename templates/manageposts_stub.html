@@ -1,6 +1,11 @@
 <div id="stub-@post_id" class="post-item">
     <p>@post_title</p>
     <div class="actions">
+        @if draft 
+            <button hx-swap="outerHTML" hx-patch="/post/publish?id=@post_id">Publish</button>
+        @else
+            <button hx-swap="outerHTML" hx-patch="/post/draft?id=@post_id">Draft</button>
+        @endif
         <button onclick="location.href='/post/@post_id';">View</button>
         <button onclick="location.href='/edit/@post_id';">Edit</button>
         <button 

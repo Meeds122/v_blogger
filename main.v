@@ -90,8 +90,9 @@ fn main() {
 // When deploying to prod: $ v -prod -o v_blogger .
 
 // TODOs:
-//		0. Setup run_at for the veb server. Currently listens on 0.0.0.0:8080
 // 		1. Draft handling in manage posts and new post
+// 			- Mark as draft
+// 			- Better locality of behaviorin manageposts_stub.html draft and post.html. Would be nice to refresh entire entry
 // 		2. Edit functions in manage posts
 // 		3. Import Database
 // 		4. Upload and delete images
@@ -296,8 +297,7 @@ pub fn (app &App) post(mut ctx Context, id int) veb.Result {
 	// Dont let people get drafts from the /post endpoint unless administrator
 	if (draft == true) && (ctx.is_admin == false) {
 		return ctx.redirect('/', typ: .see_other)
-	}
-	else {
+	} else {
 		return $veb.html()
 	}
 }
@@ -398,14 +398,14 @@ pub fn (mut app App) login(mut ctx Context) veb.Result {
 // -- Private Routes --
 // --------------------
 
-@['/publish'; post]
-pub fn (app &App) publish(mut ctx Context) veb.Result {
+@['/post/save'; post]
+pub fn (app &App) save_post(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
 	new_post := Post {
-		draft: false
+		draft: true
 		created: time.now().unix()
 		updated: time.now().unix()
 		title: ctx.form['title']
@@ -419,6 +419,36 @@ pub fn (app &App) publish(mut ctx Context) veb.Result {
 
 	return ctx.html('<button onclick="location.href = \'/post/${post_id}\';">View Post</button><p style="text-align: center;">Success!</p>')
 }
+
+@['/post/publish'; patch]
+pub fn (app &App) publish(mut ctx Context) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	if 'id' !in ctx.query.keys() {
+		return ctx.request_error('Query malformed')
+	}
+	
+	id := ctx.query['id'].int()
+
+	sql app.article_db {
+		update Post set draft = false where post_id == id
+	} or { panic(err) }
+
+	return ctx.html('Published')
+}
+
+@['/post/draft'; patch]
+pub fn (app &App) draft(mut ctx Context) veb.Result	{
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+	return ctx.no_content()
+}
+
 
 @['/export'; get; post]
 pub fn (app &App) export(mut ctx Context) veb.Result {
@@ -562,7 +592,8 @@ pub fn (app &App) manage_all_posts (mut ctx Context) veb.Result{
 		title += post.title
 		content += make_managepost_stub(
 			post.post_id,
-			title
+			title,
+			post.draft
 		)
 	}
 
@@ -835,7 +866,7 @@ fn make_comment_stub (c_id int, c_name string, c_email string, c_comment string,
 	return $tmpl('templates/comment_stub.html')
 }
 
-fn make_managepost_stub (post_id int, post_title string) string {
+fn make_managepost_stub (post_id int, post_title string, draft bool) string {
 	return $tmpl('templates/manageposts_stub.html')
 }
 
