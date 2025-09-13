@@ -25,9 +25,17 @@
     </div>
   </nav>
 
-
   <div class="container">
     <div class="post-container">
+      @if draft
+        <div class="post-item manage-container">
+          <p>This is a draft.</p>
+          <div class="actions">
+            <button onclick="location.href='/edit/@id';">Edit</button>
+            <button hx-swap="outerHTML" hx-patch="/post/publish?id=@id">Publish</button>
+          </div>
+        </div>
+      @endif
       <h1 class="post-title">@post_title</h1>
       <p class="post-date">Published: @str_created</p>
       <div class="post-content"

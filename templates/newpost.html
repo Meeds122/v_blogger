@@ -29,7 +29,7 @@
   <div class="container">
     <div class="form-container">
       <h2>Write New Blog Post</h2>
-      <form hx-post="/publish" hx-target="#results" hx-swap="outerHTML">
+      <form hx-post="/post/save" hx-target="#results" hx-swap="outerHTML">
         <!-- Prevent implicit submission of the form https://stackoverflow.com/a/51507806 -->
         <button type="submit" disabled style="display: none" aria-hidden="true"></button>
         <label for="title">Title</label>
