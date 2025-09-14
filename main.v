@@ -459,6 +459,15 @@ pub fn (app &App) draft(mut ctx Context) veb.Result	{
 	return ctx.html('Drafted')
 }
 
+@['/edit/:id'; get]
+pub fn (app &App) edit_page(mut ctx Context, id int) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	return ctx.text('Under Construction')
+}
 
 @['/export'; get; post]
 pub fn (app &App) export(mut ctx Context) veb.Result {
