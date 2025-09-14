@@ -90,17 +90,16 @@ fn main() {
 // When deploying to prod: $ v -prod -o v_blogger .
 
 // TODOs:
-// 		1. Draft handling in manage posts and new post
-// 			- Mark as draft
-// 			- Better locality of behaviorin manageposts_stub.html draft and post.html. Would be nice to refresh entire entry
-// 		2. Edit functions in manage posts
-// 		3. Import Database
-// 		4. Upload and delete images
-//		5. Config update and server control? Reset to default?
-// 		6. Fix is_admin middleware to be immutable
+// 		1. Edit functions in manage posts
+// 		2. Import Database
+// 		3. Upload and delete images
+//		4. Config update and server control? Reset to default?
+// 		5. Fix is_admin middleware to be immutable
 // 			- Move old session cleanup to login (should be infrequent.)
-// 		7. No delete first admin? 
-//		8. Unhook init setup middleware and/or restart app after init config?
+// 		6. No delete first admin? 
+//		7. Unhook init setup middleware and/or restart app after init config?
+// 		8. Better locality of behaviorin manageposts_stub.html draft and post.html. Would be nice to refresh entire entry
+
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
@@ -446,7 +445,18 @@ pub fn (app &App) draft(mut ctx Context) veb.Result	{
 	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
-	return ctx.no_content()
+
+	if 'id' !in ctx.query.keys() {
+		return ctx.request_error('Query malformed')
+	}
+
+	id := ctx.query['id'].int()
+
+	sql app.article_db {
+		update Post set draft = true where post_id == id
+	} or { panic(err) }
+
+	return ctx.html('Drafted')
 }
 
 

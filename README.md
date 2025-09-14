@@ -17,12 +17,13 @@ Currently, the following features are supported.
 - Administrator password change
 - Export post and comment db
 
-
-The following features are on the roadmap.
+The following features are ready for the next release.
 - Drafts
   - Create posts as drafts
   - Convert drafts into posts
   - Convert posts into drafts
+
+The following features are on the roadmap.
 - Edits
   - Edit existing posts / drafts
 - Import post and comment db
