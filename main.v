@@ -99,7 +99,7 @@ fn main() {
 // 		6. No delete first admin? 
 //		7. Unhook init setup middleware and/or restart app after init config?
 // 		8. Better locality of behaviorin manageposts_stub.html draft and post.html. Would be nice to refresh entire entry
-
+// 		9. Auto-resising text-area in some forms (new post, etc. )
 
 // IDEAs: 
 // 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
