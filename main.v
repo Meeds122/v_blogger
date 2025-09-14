@@ -459,14 +459,15 @@ pub fn (app &App) draft(mut ctx Context) veb.Result	{
 	return ctx.html('Drafted')
 }
 
-@['/edit/:id'; get]
-pub fn (app &App) edit_page(mut ctx Context, id int) veb.Result {
+// TODO
+@['/edit/:id'; patch]
+pub fn (app &App) update_post (mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
 
-	return ctx.text('Under Construction')
+	return ctx.request_error('Not implemented yet')
 }
 
 @['/export'; get; post]
@@ -549,39 +550,6 @@ pub fn (app &App) delete_post(mut ctx Context, id int) veb.Result {
 	} or { panic(err) }
 
 	return ctx.html('<p>Deleted</p>')
-}
-
-// TODO
-@['/managepost/draft/:id'; put]
-pub fn (app &App) swap_draft(mut ctx Context, id int) veb.Result {
-	// Admin Gate
-	if !ctx.is_admin {
-		return ctx.redirect('/', typ: .see_other)
-	}
-
-	return ctx.no_content()
-}
-
-// TODO
-@['/managepost/:id'; put]
-pub fn (app &App) update_post(mut ctx Context, id int) veb.Result {
-	// Admin Gate
-	if !ctx.is_admin {
-		return ctx.redirect('/', typ: .see_other)
-	}
-
-	return ctx.no_content()
-}
-
-// TODO
-@['/managepost/:id'; get]
-pub fn (app &App) update_post_page(mut ctx Context, id int) veb.Result {
-	// Admin Gate
-	if !ctx.is_admin {
-		return ctx.redirect('/', typ: .see_other)
-	}
-
-	return ctx.no_content()
 }
 
 @['/manageposts/all'; get]
@@ -857,6 +825,35 @@ pub fn (app &App) comments(mut ctx Context) veb.Result {
 	
 	title := app.title
 	tab_title := app.tab_title
+	return $veb.html()
+}
+
+@['/edit/:id'; get]
+pub fn (app &App) editpost(mut ctx Context, id int) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	title := app.title
+	tab_title := app.tab_title
+
+	posts := sql app.article_db {
+		select from Post where post_id == id limit 1
+    } or { panic(err) }
+
+	println(posts)
+
+	post := posts[0]
+
+	println(post)
+
+	post_title := post.title
+	post_summary := post.summary
+	post_content := post.content
+
+	// Veb bug
+
 	return $veb.html()
 }
 
