@@ -835,6 +835,11 @@ pub fn (app &App) editpost(mut ctx Context, id int) veb.Result {
 		return ctx.redirect('/', typ: .see_other)
 	}
 
+	// Invalid ID guard
+	if id <= 0 {
+		return ctx.html("Invalid ID value")
+	}
+
 	title := app.title
 	tab_title := app.tab_title
 
@@ -842,17 +847,14 @@ pub fn (app &App) editpost(mut ctx Context, id int) veb.Result {
 		select from Post where post_id == id limit 1
     } or { panic(err) }
 
-	println(posts)
+	// ID not in DB Guard
+	if posts.len <= 0 {
+		return ctx.html("Unable to find post ID")
+	}
 
-	post := posts[0]
-
-	println(post)
-
-	post_title := post.title
-	post_summary := post.summary
-	post_content := post.content
-
-	// Veb bug
+	post_title := posts[0].title
+	post_summary := posts[0].summary
+	post_content := posts[0].content
 
 	return $veb.html()
 }
