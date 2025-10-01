@@ -22,10 +22,10 @@ The following features are ready for the next release.
   - Create posts as drafts
   - Convert drafts into posts
   - Convert posts into drafts
-
-The following features are on the roadmap.
 - Edits
   - Edit existing posts / drafts
+
+The following features are on the roadmap.
 - Import post and comment db
 - Image handling
 
