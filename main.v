@@ -462,15 +462,29 @@ pub fn (app &App) draft(mut ctx Context) veb.Result	{
 	return ctx.html('Drafted')
 }
 
-// TODO
+// In progress
 @['/edit/:id'; patch]
-pub fn (app &App) update_post (mut ctx Context) veb.Result {
+pub fn (app &App) update_post (mut ctx Context, id int) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
 
-	return ctx.request_error('Not implemented yet')
+	// Invalid ID guard
+	if id <= 0 {
+		return ctx.request_error("Invalid ID value")
+	}
+
+	new_title := ctx.form['title'] or { return ctx.request_error('Form Failure') }
+	new_summary := ctx.form['summary'] or { return ctx.request_error('Form Failure') }
+	new_content := ctx.form['content'] or { return ctx.request_error('Form Failure') }
+	new_time := time.now().unix()
+
+	sql app.article_db {
+		update Post set updated = new_time, title = new_title, summary = new_summary, content = new_content where post_id == id
+	} or { panic(err) }
+
+	return ctx.html('<button onclick="location.href = \'/post/${id}\';">View Post</button><p style="text-align: center;">Success!</p>')
 }
 
 @['/export'; get; post]
@@ -840,7 +854,7 @@ pub fn (app &App) editpost(mut ctx Context, id int) veb.Result {
 
 	// Invalid ID guard
 	if id <= 0 {
-		return ctx.html("Invalid ID value")
+		return ctx.request_error("Invalid ID value")
 	}
 
 	title := app.title
@@ -852,7 +866,7 @@ pub fn (app &App) editpost(mut ctx Context, id int) veb.Result {
 
 	// ID not in DB Guard
 	if posts.len <= 0 {
-		return ctx.html("Unable to find post ID")
+		return ctx.request_error("Unable to find post ID")
 	}
 
 	post_title := posts[0].title

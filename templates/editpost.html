@@ -28,8 +28,8 @@
 
   <div class="container">
     <div class="form-container">
-      <h2>Write New Blog Post</h2>
-      <form hx-put="/edit/@id" hx-target="#results" hx-swap="outerHTML">
+      <h2>Edit Blog Post</h2>
+      <form hx-patch="/edit/@id" hx-target="#results" hx-swap="outerHTML">
         <!-- Prevent implicit submission of the form https://stackoverflow.com/a/51507806 -->
         <button type="submit" disabled style="display: none" aria-hidden="true"></button>
         <label for="title">Title</label>
