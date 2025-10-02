@@ -1,7 +1,7 @@
 # v_blogger
 ## About
 v_bogger is a blogging platform created using the V programming language and HTMX for additional interactivity. 
-This software is currently in *alpha* and a number of features are unsupported. 
+This software is currently in *alpha* and a number of features are unsupported. See the roadmap below. Once the current roadmap features and the known security and reliability improvements are complete, the project will be moved into *beta* for testing.
 Please see the [releases page](https://github.com/Meeds122/v_blogger/releases) for the latest pre-compiled versions. Instructions for compiling this project are further on in this document. 
 
 ## Status
@@ -29,10 +29,16 @@ The following features are on the roadmap.
 - Import post and comment db
 - Image handling
 
-
-Eventual features.
+Security and Reliability Improvements
+- Generated session secrets
+- Index guards
+- Absolute static resource paths
 - MFA
-- Front page pagination
+
+Eventual features
+-More convenient navigation
+  - Admin header links on drafts
+  - Front page pagination
 - Post search
 - SEO improvements
 - Markdown support! Maybe? 
@@ -49,3 +55,7 @@ Eventual features.
 
 ## About publishing to the internet
 This app is not configured to be available on the internet. While I made some good decisions (I think!) regarding the security of the app, V's veb framework does not support TLS encryption which is a must on the modern web. Use a reverse proxy such as Apache, NGINX, Caddy, or Kamal to handle HTTPS transation. Certain higher-traffic sites may wish to move the /static .css and .js files to the reverse proxy or another host for better compression, caching, and performance. Eventually, I would like to make a docker image that includes the reverse proxy for easy production deployment, but those days are well beyond today's alpha version. 
+
+
+## AI Statement
+This application utilized AI in creating HTML and CSS mockups for the web pages. The V backend did not utilize AI technology. 
