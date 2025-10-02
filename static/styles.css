@@ -1,5 +1,5 @@
 :root {
-  --bg-color: #f3f4f6;
+  --bg-color: #eaeaea;
   --card-bg: #ffffff;
   --text-color: #1f2937;
   --text-secondary: #6b7280;
@@ -109,6 +109,7 @@ nav {
 
 .post-container h3 {
   font-size: 1.25rem;
+  text-align: left;
 }
 
 .post-date {
