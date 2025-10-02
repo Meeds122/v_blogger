@@ -36,7 +36,7 @@ Security and Reliability Improvements
 - MFA
 
 Eventual features
--More convenient navigation
+- More convenient navigation
   - Admin header links on drafts
   - Front page pagination
 - Post search
