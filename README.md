@@ -24,9 +24,9 @@ The following features are ready for the next release.
   - Convert posts into drafts
 - Edits
   - Edit existing posts / drafts
+- Import post and comment db - Broken on Chrome
 
 The following features are on the roadmap.
-- Import post and comment db
 - Image handling
 
 Security and Reliability Improvements

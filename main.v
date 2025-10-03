@@ -34,13 +34,13 @@ pub struct App {
 pub:
 	port			int
 	config_file		string
-	article_db		sqlite.DB
 	admin_db		sqlite.DB
 	hash_cost		int
 pub mut:
 	needs_setup		bool 
 	tab_title		string
 	title			string		// true if we need to first time run (i.e. config.toml not exist.)
+	article_db		sqlite.DB
 	session_expire 	int 		// Session expiration in seconds. 
 	session_secret	string
 	sessions 		[]Session
@@ -510,17 +510,27 @@ pub fn (app &App) export(mut ctx Context) veb.Result {
 }
 
 // TODO Broken on Chrome .. Seems similar to https://github.com/vlang/v/issues/24975
+// Works with cURL and Firefox
 @['/import'; post]
-pub fn (app &App) db_import(mut ctx Context) veb.Result {
+pub fn (mut app App) db_import(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
+	
 	uploaded_files := ctx.files['new_db'] or { return ctx.request_error("Upload failure") }
-	mut db_filedata := uploaded_files[0]
-	os.write_file_array('db2.db', db_filedata.data.bytes()) or { panic(err) }
-	//$dbg
-	return ctx.html("File Uploaded")
+	
+	app.article_db.close() or { panic(err) } // Close sqlite DB
+
+	if os.exists('articles.db') {
+		os.rm('articles.db') or { panic(err) }
+	}
+
+	os.write_file_array('articles.db', uploaded_files[0].data.bytes()) or { panic(err) } // replace DB
+	
+	app.article_db = sqlite.connect('articles.db') or { panic(err) } // reconnect DB
+
+	return ctx.ok("Import Successful")
 }
 
 @['/comments/all'; get]
