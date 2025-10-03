@@ -509,7 +509,7 @@ pub fn (app &App) export(mut ctx Context) veb.Result {
 	}
 }
 
-// TODO Broken
+// TODO Broken on Chrome .. Seems similar to https://github.com/vlang/v/issues/24975
 @['/import'; post]
 pub fn (app &App) db_import(mut ctx Context) veb.Result {
 	// Admin Gate
