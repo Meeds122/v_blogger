@@ -509,6 +509,20 @@ pub fn (app &App) export(mut ctx Context) veb.Result {
 	}
 }
 
+// TODO Broken
+@['/import'; post]
+pub fn (app &App) db_import(mut ctx Context) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+	uploaded_files := ctx.files['new_db'] or { return ctx.request_error("Upload failure") }
+	mut db_filedata := uploaded_files[0]
+	os.write_file_array('db2.db', db_filedata.data.bytes()) or { panic(err) }
+	//$dbg
+	return ctx.html("File Uploaded")
+}
+
 @['/comments/all'; get]
 pub fn (app &App) manage_all_comments(mut ctx Context) veb.Result{
 	// Admin Gate
@@ -674,7 +688,6 @@ pub fn (app &App) new_user (mut ctx Context) veb.Result {
 	return ctx.html('<p>Account Created</p>')
 }
 
-// TODO
 @['/manageadmin/delete/:id'; delete]
 pub fn (app &App) delete_user (mut ctx Context, id int) veb.Result {
 	// Admin Gate
@@ -693,7 +706,6 @@ pub fn (app &App) delete_user (mut ctx Context, id int) veb.Result {
 	return ctx.html('<p>Account Deleted</p>')
 }
 
-// TODO
 @['/manageadmins/all'; get]
 pub fn (app &App) all_users (mut ctx Context, id int) veb.Result {
 	// Admin Gate
@@ -788,18 +800,6 @@ pub fn (app &App) admin(mut ctx Context) veb.Result {
 	return $veb.html()
 }
 
-// TODO
-pub fn (app &App) import(mut ctx Context) veb.Result {
-	// Admin Gate
-	if !ctx.is_admin {
-		return ctx.redirect('/', typ: .see_other)
-	}
-	
-	title := app.title
-	tab_title := app.tab_title
-	return $veb.html()
-}
-
 pub fn (app &App) manageadmins(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
@@ -873,6 +873,17 @@ pub fn (app &App) editpost(mut ctx Context, id int) veb.Result {
 	post_summary := posts[0].summary
 	post_content := posts[0].content
 
+	return $veb.html()
+}
+
+@['/import'; get]
+pub fn (app &App) import(mut ctx Context) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+	title := app.title
+	tab_title := app.tab_title
 	return $veb.html()
 }
 

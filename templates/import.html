@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>@tab_title</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="htmx.min.js"></script>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/htmx.min.js"></script>
 </head>
 <body data-theme="light">
   <nav>
@@ -29,11 +29,16 @@
   <div class="container">
     <div class="form-container">
       <h2>Import Database</h2>
-      <div>
+      <form 
+        hx-post="/import"
+        hx-target="#results" 
+        hx-swap="outerHTML" 
+        hx-encoding='multipart/form-data'
+      >
         <label for="database">Upload SQLite Database</label>
-        <input type="file" id="database" accept=".sqlite,.db">
-        <button onclick="alert('Database imported! (This is a demo)')">Import Database</button>
-      </div>
+        <input type="file" id="database" accept=".sqlite,.db" name="new_db">
+        <button type="submit" id="results">Import Database</button>
+      </form>
     </div>
   </div>
 
