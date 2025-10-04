@@ -21,4 +21,7 @@ bin/
 
 # vweb and database
 *.db
+
+# custom ignores. 
+static/uploads/*
 *.toml

@@ -90,17 +90,15 @@ fn main() {
 // When deploying to prod: $ v -prod -o v_blogger .
 
 // TODOs:
-// 		1. Edit functions in manage posts
-// 		2. Import Database
-// 		3. Upload and delete images
-//		4. Config update and server control? Reset to default?
-// 		5. Fix is_admin middleware to be immutable
+// 		1. Upload and delete images
+//		2. Config update and server control? Reset to default?
+// 		3. Fix is_admin middleware to be immutable
 // 			- Move old session cleanup to login (should be infrequent.)
-// 		6. No delete first admin? 
-//		7. Unhook init setup middleware and/or restart app after init config?
-// 		8. Better locality of behaviorin manageposts_stub.html draft and post.html. Would be nice to refresh entire entry
-// 		9. Auto-resising text-area in some forms (new post, etc. )
-// 		10. Fix relative paths in templates. 
+// 		4. No delete first admin? 
+//		5. Unhook init setup middleware and/or restart app after init config?
+// 		6. Better locality of behaviorin manageposts_stub.html draft and post.html. Would be nice to refresh entire entry
+// 		7. Auto-resising text-area in some forms (new post, etc. )
+// 		8. Fix relative paths in templates. 
 // 			- grep -r 'href="[^/]' templates/
 // 			- grep -r 'src="[^/]' templates/
 
@@ -462,7 +460,6 @@ pub fn (app &App) draft(mut ctx Context) veb.Result	{
 	return ctx.html('Drafted')
 }
 
-// In progress
 @['/edit/:id'; patch]
 pub fn (app &App) update_post (mut ctx Context, id int) veb.Result {
 	// Admin Gate
@@ -532,6 +529,53 @@ pub fn (mut app App) db_import(mut ctx Context) veb.Result {
 
 	return ctx.ok("Import Successful")
 }
+
+// Need to add file to the static service
+// app.serve_static('/path/main.css',  'static/css/main.css')!
+// Also need to check that file is image content. 
+// TODO
+@['/uploadimage'; post]
+pub fn (app &App) upload_image_file(mut ctx Context) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	return ctx.request_error('Not Implemented Yet')
+}
+
+// TODO
+@['/uploadimage/:fname'; delete]
+pub fn (app &App) delete_image (mut ctx Context, fname string) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	return ctx.request_error('Not Implemented Yet')
+}
+
+@['/uploadimage/all'; get]
+pub fn (app &App) upload_image_stubs (mut ctx Context) veb.Result {
+	// Admin Gate
+	if !ctx.is_admin {
+		return ctx.redirect('/', typ: .see_other)
+	}
+
+	uploaded_files := os.ls('static/uploads/') or { [] }
+
+	if uploaded_files.len <= 0 {
+		return ctx.html('<p>No content</p>')
+	}
+	
+	mut content := ''
+	for file_name in uploaded_files{
+		content += make_image_stub(file_name)
+	}
+
+	return ctx.html(content)
+}
+
 
 @['/comments/all'; get]
 pub fn (app &App) manage_all_comments(mut ctx Context) veb.Result{
@@ -897,7 +941,6 @@ pub fn (app &App) import(mut ctx Context) veb.Result {
 	return $veb.html()
 }
 
-// TODO
 pub fn (app &App) uploadimage(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
@@ -928,6 +971,10 @@ fn make_managepost_stub (post_id int, post_title string, draft bool) string {
 
 fn make_users_stub (id int, username string) string {
 	return $tmpl('templates/admin_stub.html')
+}
+
+fn make_image_stub (fname string) string {
+	return $tmpl('templates/uploadimage_stub.html')
 }
 
 // This function reminds me of python string maipulation and now I feel gross. 
