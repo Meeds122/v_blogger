@@ -16,6 +16,7 @@ import crypto.bcrypt
 import crypto.hmac
 import crypto.sha512
 import rand
+import crypto.rand as cryptorand
 import encoding.base64
 
 // Context is not shared between requests. It manages the request session
@@ -36,13 +37,13 @@ pub:
 	config_file		string
 	admin_db		sqlite.DB
 	hash_cost		int
+	session_secret	[]u8
 pub mut:
 	needs_setup		bool 
 	tab_title		string
 	title			string		// true if we need to first time run (i.e. config.toml not exist.)
 	article_db		sqlite.DB
-	session_expire 	int 		// Session expiration in seconds. 
-	session_secret	string
+	session_expire 	int 		// Session expiration in seconds.
 	sessions 		[]Session
 }
 
@@ -54,6 +55,7 @@ fn main() {
 		admin_db:		sqlite.connect('admins.db') or { panic(err) }
 		hash_cost:		14		// How long to reset password / create new user / sign on. Min 10. Rec 12.
 		sessions:		[]Session{}
+		session_secret: cryptorand.bytes(24) or { panic(err) }
     }
 
 	// read config and set needs_setup
@@ -67,7 +69,6 @@ fn main() {
 		app.tab_title = doc.value('tab_title').string()
 		app.title = doc.value('title').string()
 		app.session_expire = strconv.atoi(doc.value('session_expire').string()) or { panic(err) }
-		app.session_secret = doc.value('session_secret').string()
 	}
 
 	sql app.article_db {
@@ -90,22 +91,18 @@ fn main() {
 // When deploying to prod: $ v -prod -o v_blogger .
 
 // TODOs:
-// 		1. Upload and delete images
-//		2. Config update and server control? Reset to default?
-// 		3. Fix is_admin middleware to be immutable
+//		1. Config update and server control? Reset to default?
+// 		2. Fix is_admin middleware to be immutable
 // 			- Move old session cleanup to login (should be infrequent.)
-// 		4. No delete first admin? 
-//		5. Unhook init setup middleware and/or restart app after init config?
-// 		6. Better locality of behaviorin manageposts_stub.html draft and post.html. Would be nice to refresh entire entry
-// 		7. Auto-resising text-area in some forms (new post, etc. )
-// 		8. Fix relative paths in templates. 
+// 		3. No delete first admin? 
+//		4. Unhook init setup middleware and/or restart app after init config?
+// 		5. Better locality of behaviorin manageposts_stub.html draft and post.html. Would be nice to refresh entire entry
+// 		6. Auto-resising text-area in some forms (new post, etc. )
+// 		7. Fix relative paths in templates. 
 // 			- grep -r 'href="[^/]' templates/
 // 			- grep -r 'src="[^/]' templates/
-
-// IDEAs: 
-// 		1. Use V's template engine to insert the css and js if performance with the static handler becomes a bottleneck
-// 			- How to measure tho? Also, even though static handler is 1/2 as performant as template, it is very fast
-//		2. Caddy for HTTPS reverse proxy? NGINX and use it to server statics too? Set cache times on htmx and css? 
+// 		8. Default to system theme if theme local var not set. 
+// 		9. Logging section?
 
 // ------------
 // -- Models --
@@ -818,7 +815,6 @@ pub fn (mut app App) configure_app(mut ctx Context) veb.Result {
 	app.title = ctx.form['title']
 	app.tab_title = ctx.form['tab_title']
 	app.session_expire = 60 * strconv.atoi(ctx.form['session_timeout']) or { panic(err) }// comes in as minutes, is stored as seconds.
-	app.session_secret = ctx.form['session_secret']
 	username := ctx.form['initial_username']
 	password := ctx.form['initial_password']
 
@@ -828,7 +824,6 @@ pub fn (mut app App) configure_app(mut ctx Context) veb.Result {
 	f.writeln('tab_title = "${app.tab_title}"') or { panic(err) }
 	f.writeln('title = "${app.title}"') or { panic(err) }
 	f.writeln('session_expire = "${app.session_expire}"') or { panic(err) }
-	f.writeln('session_secret = "${app.session_secret}"') or { panic(err) }
 	f.close()
 
 	// Create admin account
@@ -1022,18 +1017,18 @@ fn johanns_maw (text string) string {
 	return return_text
 }
 
-fn Session.new_token(session_secret string) !string {
+fn Session.new_token(session_secret []u8) !string {
 	// crypto func sha512.sum512(f_bytes).hex()	
 	return base64.encode(
 					hmac.new(
-							session_secret.bytes(), 
+							session_secret, 
 							rand.bytes(128) or {return err}, 
 							sha512.sum512, 
 							128)
 						)
 }
 
-fn Session.new(user_id int, session_secret string, ttl i64) !Session {
+fn Session.new(user_id int, session_secret []u8, ttl i64) !Session {
 	return Session {
 		user_id: user_id
 		token: Session.new_token(session_secret) or { panic(err) }
