@@ -544,7 +544,6 @@ pub fn (app &App) upload_image_file(mut ctx Context) veb.Result {
 	return ctx.request_error('Not Implemented Yet')
 }
 
-// TODO
 @['/uploadimage/:fname'; delete]
 pub fn (app &App) delete_image (mut ctx Context, fname string) veb.Result {
 	// Admin Gate
@@ -552,7 +551,13 @@ pub fn (app &App) delete_image (mut ctx Context, fname string) veb.Result {
 		return ctx.redirect('/', typ: .see_other)
 	}
 
-	return ctx.request_error('Not Implemented Yet')
+	if fname in os.ls('static/uploads') or { [] } {
+		os.rm('static/uploads/${fname}') or { return ctx.html('<p>Deletion Error</p>') }
+		return ctx.html('<p>Deleted</p>')
+	}
+	else {
+		return ctx.html('<p>Unable to find file</p>')
+	}
 }
 
 @['/uploadimage/all'; get]
@@ -568,9 +573,11 @@ pub fn (app &App) upload_image_stubs (mut ctx Context) veb.Result {
 		return ctx.html('<p>No content</p>')
 	}
 	
+	mut counter := 0
 	mut content := ''
 	for file_name in uploaded_files{
-		content += make_image_stub(file_name)
+		content += make_image_stub(file_name, counter)
+		counter += 1
 	}
 
 	return ctx.html(content)
@@ -973,7 +980,7 @@ fn make_users_stub (id int, username string) string {
 	return $tmpl('templates/admin_stub.html')
 }
 
-fn make_image_stub (fname string) string {
+fn make_image_stub (fname string, id int) string {
 	return $tmpl('templates/uploadimage_stub.html')
 }
 
