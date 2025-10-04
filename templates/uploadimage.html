@@ -37,7 +37,7 @@
       >
         <p>Upload an image file to be used in blog posts. Content goes to /uploads/YOUR_FILE_NAME</p>
         <label for="image-upload">Select Image</label>
-        <input type="file" id="image-upload" accept="image/*" multiple>
+        <input type="file" id="image-upload" name="images" accept="image/jpeg,image/png,image/gif" multiple required>
         <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
           Supported formats: JPEG, PNG, GIF. Maximum file size: 5MB.
         </p>
