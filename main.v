@@ -530,18 +530,33 @@ pub fn (mut app App) db_import(mut ctx Context) veb.Result {
 	return ctx.ok("Import Successful")
 }
 
-// Need to add file to the static service
-// app.serve_static('/path/main.css',  'static/css/main.css')!
-// Also need to check that file is image content. 
-// TODO
 @['/uploadimage'; post]
-pub fn (app &App) upload_image_file(mut ctx Context) veb.Result {
+pub fn (mut app App) upload_image_file(mut ctx Context) veb.Result {
 	// Admin Gate
 	if !ctx.is_admin {
 		return ctx.redirect('/', typ: .see_other)
 	}
 
-	return ctx.request_error('Not Implemented Yet')
+	uploaded_files := ctx.files['images'] or { return ctx.request_error('Upload failure') }
+
+	for file in uploaded_files {
+
+		if os.exists('static/uploads/${file.filename}') {
+			return ctx.html('<p>Error: ${file.filename} already exists.</p>')
+		}
+		
+		match file.content_type {
+			'image/jpeg' { os.write_file_array('static/uploads/${file.filename}', file.data.bytes()) or { panic(err) } }
+			'image/png' { os.write_file_array('static/uploads/${file.filename}', file.data.bytes()) or { panic(err) } }
+			'image/gif' { os.write_file_array('static/uploads/${file.filename}', file.data.bytes()) or { panic(err) } }
+			else { return ctx.request_error('Unsupported File') }
+		}
+
+		app.serve_static('/uploads/${file.filename}', 'static/uploads/${file.filename}') or { panic(err) }
+
+	}
+
+	return ctx.html('<button onClick="window.location.reload();">Upload Successful. Refresh?</button>')
 }
 
 @['/uploadimage/:fname'; delete]

@@ -5,7 +5,8 @@ This software is currently in *alpha* and a number of features are unsupported. 
 Please see the [releases page](https://github.com/Meeds122/v_blogger/releases) for the latest pre-compiled versions. Instructions for compiling this project are further on in this document. 
 
 ## Status
-Currently, the following features are supported. 
+### Supported Features
+Currently Supported Features
 - Light mode / dark mode
 - In-app initial setup
 - HTML Markup
@@ -16,8 +17,6 @@ Currently, the following features are supported.
 - Administrator management
 - Administrator password change
 - Export post and comment db
-
-The following features are ready for the next release.
 - Drafts
   - Create posts as drafts
   - Convert drafts into posts
@@ -25,10 +24,9 @@ The following features are ready for the next release.
 - Edits
   - Edit existing posts / drafts
 - Import post and comment db - Broken on Chrome
-
-The following features are on the roadmap.
 - Image handling
 
+### Future Improvements
 Security and Reliability Improvements
 - Generated session secrets
 - Index guards
