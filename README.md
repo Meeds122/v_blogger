@@ -59,3 +59,6 @@ This app is not configured to be available on the internet. While I made some go
 
 ## AI Statement
 This application utilized AI in creating HTML and CSS mockups for the web pages. The V backend did not utilize AI technology. 
+
+## Author's Notes
+This application was created both to serve my own needs for a blogging engine and to learn more about the V language and HTMX web programming.

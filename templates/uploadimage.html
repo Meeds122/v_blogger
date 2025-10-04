@@ -29,14 +29,26 @@
   <div class="container">
     <div class="form-container">
       <h2>Upload Image</h2>
-      <div>
+      <form
+        hx-post="/uploadimage"
+        hx-target="#results" 
+        hx-swap="outerHTML" 
+        hx-encoding='multipart/form-data'
+      >
         <p>Upload an image file to be used in blog posts. Content goes to /uploads/YOUR_FILE_NAME</p>
         <label for="image-upload">Select Image</label>
         <input type="file" id="image-upload" accept="image/*" multiple>
         <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
           Supported formats: JPEG, PNG, GIF. Maximum file size: 5MB.
         </p>
-        <button onclick="alert('Image(s) uploaded! (This is a demo)')">Upload Image(s)</button>
+        <button type="submit" id="results">Upload Image(s)</button>
+      </form>
+    </div>
+    <br>
+    <div class="form-container">
+      <h2>Manage Existing Images</h2>
+      <div class="post-list" hx-trigger="load" hx-get="/uploadimage/all" hx-swap="innerHTML">
+        <p>Loading...</p>
       </div>
     </div>
   </div>

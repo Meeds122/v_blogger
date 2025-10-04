@@ -1,0 +1,13 @@
+<div id="stub-@fname" class="post-item">
+    <p>@fname</p>
+    <div class="actions">
+        <button onclick="location.href='/uploads/@fname';">View</button>
+        <button 
+            hx-delete="/uploadimage/@fname"
+            hx-target="#stub-@fname"
+            hx-swap="innerHTML"
+            >
+            Delete
+        </button>
+    </div>
+</div>
