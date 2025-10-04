@@ -26,13 +26,14 @@ Currently Supported Features
 - Import post and comment db - Broken on Chrome
 - Image handling
 
-### Future Improvements
+### Improvements In Progress
 Security and Reliability Improvements
-- Generated session secrets
-- Index guards
-- Absolute static resource paths
-- MFA
+- [DONE] Generated session secrets
+- [TODO] Index guards
+- [TODO] Absolute static resource paths
+- [TODO] MFA
 
+### Future Improvements
 Eventual features
 - More convenient navigation
   - Admin header links on drafts
