@@ -54,6 +54,7 @@ fn main() {
 		article_db:		sqlite.connect('articles.db') or { panic(err) }
 		admin_db:		sqlite.connect('admins.db') or { panic(err) }
 		hash_cost:		12		// How long to reset password / create new user / sign on. Min 10. Rec 12.
+								// If changing this value, need to re-generate the failure work hash in the login function to match timing. 
 		sessions:		[]Session{}
 		session_secret: cryptorand.bytes(24) or { panic(err) }
     }
@@ -360,8 +361,12 @@ pub fn (app &App) comment(mut ctx Context) veb.Result {
 
 @['/login'; post]
 pub fn (mut app App) login(mut ctx Context) veb.Result {
-	in_username := ctx.form['username']
-	in_password := ctx.form['password']
+	in_username := ctx.form['username'] or {return ctx.request_error('Form Error')}
+	in_password := ctx.form['password'] or {return ctx.request_error('Form Error')}
+
+	if in_username.len <= 0 || in_password.len <= 0 {
+		return ctx.request_error('Form Error')
+	}
 
 	login_failure := 'Login Failure'
 
@@ -369,9 +374,11 @@ pub fn (mut app App) login(mut ctx Context) veb.Result {
 		select from Admin where username == in_username limit 1
 	} or { panic(err) }
 
-	// Might be an info leak via timing here
-	// Also, need to check len vs max_len because len > max_len == easy DoS
 	if user.len != 1 {
+		// No valid username - We do the same work to prevent disclosing valid usernames by timing.
+		bcrypt.compare_hash_and_password('abc123456'.bytes(), r'$2a$12$TFxzrYr.HWYkRk3mvUKD1ew5IPdHsBoYE0akZtx67ch0bwccc987i'.bytes()) or { 
+			return ctx.html(login_failure)
+		}
 		return ctx.html(login_failure)
 	}
 	else{
@@ -397,6 +404,7 @@ pub fn (mut app App) login(mut ctx Context) veb.Result {
 		return ctx.html('<script>document.location="/admin";</script>')
 
 	}
+
 	return ctx.html(login_failure)
 }
 
@@ -700,7 +708,6 @@ pub fn (app &App) manage_all_posts (mut ctx Context) veb.Result{
 	return ctx.html(content)
 }
 
-// TODO - Index Guard
 @['/manageadmins/password/:id'; patch]
 pub fn (app &App) update_password (mut ctx Context, id int) veb.Result {
 	// Admin Gate
