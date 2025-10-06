@@ -98,11 +98,9 @@ fn main() {
 //		4. Unhook init setup middleware and/or restart app after init config?
 // 		5. Better locality of behaviorin manageposts_stub.html draft and post.html. Would be nice to refresh entire entry
 // 		6. Auto-resising text-area in some forms (new post, etc. )
-// 		7. Fix relative paths in templates. 
-// 			- grep -r 'href="[^/]' templates/
-// 			- grep -r 'src="[^/]' templates/
-// 		8. Default to system theme if theme local var not set. 
-// 		9. Logging section?
+// 		7. Default to system theme if theme local var not set. 
+// 		8. Logging section?
+// 		9. Post page, published date to created date. 
 
 // ------------
 // -- Models --
