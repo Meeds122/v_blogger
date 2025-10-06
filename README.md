@@ -16,14 +16,9 @@ Currently Supported Features
 - Delete comments
 - Administrator management
 - Administrator password change
-- Export post and comment db
 - Drafts
-  - Create posts as drafts
-  - Convert drafts into posts
-  - Convert posts into drafts
-- Edits
-  - Edit existing posts / drafts
-- Import post and comment db - Broken on Chrome
+- Editing
+- Backup and Restore (export and import)
 - Image handling
 
 ### Improvements In Progress
@@ -31,7 +26,7 @@ Security and Reliability Improvements
 - [DONE] Generated session secrets
 - [DONE] Index guards
 - [DONE] Absolute static resource paths
-- [TODO] Fix username disclosure via timing
+- [DONE] Fix username disclosure via timing
 - [TODO] MFA
 
 ### Future Improvements
