@@ -30,7 +30,7 @@ Currently Supported Features
 Security and Reliability Improvements
 - [DONE] Generated session secrets
 - [TODO] Index guards
-- [TODO] Absolute static resource paths
+- [DONE] Absolute static resource paths
 - [TODO] MFA
 
 ### Future Improvements
@@ -47,7 +47,7 @@ Eventual features
 1. [Install the V programming language.](https://docs.vlang.io/installing-v-from-source.html) Make sure you [symlink](https://github.com/vlang/v/blob/master/README.md#symlinking) the V programming language to make it available on the PATH. 
 2. Clone this github repository `git clone https://github.com/Meeds122/v_blogger.git`
 3. Move into the new directory `cd v_blogger`
-4. Compile with `v -prod -o v_blogger .` This will take some time as production V compilation takes time. You can compile in dev mode using `v .` which is much faster if you are just testing. 
+4. Compile with `v -prod -o v_blogger .` This will take some time as production V compilation takes time. You can compile in dev mode using `v .` which is much faster if you are just testing. `v run .` will compile and run the program in dev mode all at once.
 5. Run the newly created v_blogger executable.
 6.  Visit your new blog at [http://localhost:8080](http://localhost:8080)
 
