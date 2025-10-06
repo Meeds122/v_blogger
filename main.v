@@ -53,7 +53,7 @@ fn main() {
 		config_file: 	'config.toml'
 		article_db:		sqlite.connect('articles.db') or { panic(err) }
 		admin_db:		sqlite.connect('admins.db') or { panic(err) }
-		hash_cost:		14		// How long to reset password / create new user / sign on. Min 10. Rec 12.
+		hash_cost:		12		// How long to reset password / create new user / sign on. Min 10. Rec 12.
 		sessions:		[]Session{}
 		session_secret: cryptorand.bytes(24) or { panic(err) }
     }
@@ -101,6 +101,7 @@ fn main() {
 // 		7. Default to system theme if theme local var not set. 
 // 		8. Logging section?
 // 		9. Post page, published date to created date. 
+// 		10. img tag CSS to auto-size images. 
 
 // ------------
 // -- Models --
@@ -276,6 +277,11 @@ pub fn (app &App) post(mut ctx Context, id int) veb.Result {
 		select from Post where post_id == id limit 1
     } or { panic(err) }
 
+	// Index Guard
+	if post.len <= 0 {
+		return ctx.request_error("Invalid Request")
+	}
+
 	post_title := post[0].title
 	// V's template engine doesn't seem to be able to disable the html escaping. Need to use htmx.
 	// It is still way faster than the static handler. 
@@ -306,6 +312,11 @@ pub fn (app &App) get_content (mut ctx Context, id int) veb.Result {
 	post := sql app.article_db {
 		select from Post where post_id == id limit 1
     } or { panic(err) }
+
+	// Index Guard
+	if post.len <= 0 {
+		return ctx.request_error("Invalid Request")
+	}
 
 	// Dont let people get drafts from the /post endpoint unless administrator
 	draft := post[0].draft
@@ -689,6 +700,7 @@ pub fn (app &App) manage_all_posts (mut ctx Context) veb.Result{
 	return ctx.html(content)
 }
 
+// TODO - Index Guard
 @['/manageadmins/password/:id'; patch]
 pub fn (app &App) update_password (mut ctx Context, id int) veb.Result {
 	// Admin Gate
@@ -710,6 +722,12 @@ pub fn (app &App) update_password (mut ctx Context, id int) veb.Result {
 	current_password := sql app.admin_db {
 		select from Admin where user_id == id limit 1
 	} or { panic(err) }
+
+	// Index Guard
+	if current_password.len <= 0 {
+		return ctx.request_error("Invalid Request")
+	}
+
 	bcrypt.compare_hash_and_password(ctx.form['current_password'].bytes(), current_password[0].password_hash.bytes()) or { 
 		// Some failure of some kind. Probably not match
 		return ctx.html('<p>Server Response: Current pasword match failure.</p>')
@@ -921,7 +939,7 @@ pub fn (app &App) editpost(mut ctx Context, id int) veb.Result {
 		return ctx.redirect('/', typ: .see_other)
 	}
 
-	// Invalid ID guard
+	// Index Guard
 	if id <= 0 {
 		return ctx.request_error("Invalid ID value")
 	}
