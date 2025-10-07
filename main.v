@@ -372,8 +372,9 @@ pub fn (app &App) comment(mut ctx Context) veb.Result {
 pub fn (mut app App) login(mut ctx Context) veb.Result {
 	in_username := ctx.form['username'] or {return ctx.request_error('Form Error')}
 	in_password := ctx.form['password'] or {return ctx.request_error('Form Error')}
+	mfa_token := ctx.form['mfa'] or {return ctx.request_error('Form Error')}
 
-	if in_username.len <= 0 || in_password.len <= 0 {
+	if in_username.len <= 0 || in_password.len <= 0 || mfa_token.len <=0 {
 		return ctx.request_error('Form Error')
 	}
 
@@ -396,7 +397,19 @@ pub fn (mut app App) login(mut ctx Context) veb.Result {
 			// Some failure of some kind. Probably not match
 			return ctx.html(login_failure)
 		}
-		// No failure, probably does match, go admin
+
+		// No failure, probably does match, check MFA
+		auth := totp.Authenticator {
+			secret: user[0].secret
+		}
+		mfa_valid := auth.check(mfa_token, 0) or { panic(err) }
+		if !mfa_valid {
+			// MFA check fail, exit
+			return ctx.html(login_failure)
+		}
+
+		// MFA Check passed, go admin
+		
 		session := Session.new(user[0].user_id, app.session_secret, app.session_expire) or { 
 			return ctx.html(login_failure)
 		 }
