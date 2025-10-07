@@ -86,14 +86,6 @@ fn main() {
 	app.handle_static('static', true) or { panic(err) }
 
 	app.use(handler: app.check_login)
-
-	auth := totp.Authenticator{
-		secret: 'JBSWY3DPEHPK3PXP'
-		time_step: 30
-		digits: 6
-	}
-
-	println(auth.generate_totp()!)
     
     veb.run_at[App, Context](mut app, host: 'localhost' port: app.port family: .ip)!
 }
