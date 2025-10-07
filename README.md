@@ -31,6 +31,10 @@ Security and Reliability Improvements
 
 ### Future Improvements
 Eventual features
+- MFA Improvements
+  - QR Codes for MFA
+  - Update MFA method
+  - Other MFA options
 - More convenient navigation
   - Admin header links on drafts
   - Front page pagination

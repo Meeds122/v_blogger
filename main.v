@@ -135,9 +135,13 @@ pub:
 }
 
 pub struct Admin {
-	user_id			int 	@[primary; unique; serial]
+	user_id			int 		@[primary; unique; serial]
 	username 		string
 	password_hash	string
+	// MFA Stuff
+	secret 		string			// Base32 encoded secret
+	time_step 	int		= 30	// Time step in seconds - default 30
+	digits		int		= 6		// Digits is how long the returned code is. 6-8. Default 6
 }
 
 pub struct Session {
@@ -845,6 +849,16 @@ pub fn (mut app App) configure_app(mut ctx Context) veb.Result {
 	app.session_expire = 60 * strconv.atoi(ctx.form['session_timeout']) or { panic(err) }// comes in as minutes, is stored as seconds.
 	username := ctx.form['initial_username']
 	password := ctx.form['initial_password']
+	mfa_secret := ctx.form['secret']
+	test_token := ctx.form['mfa_test']
+
+	// Check MFA Success
+	auth := totp.Authenticator {
+		secret: mfa_secret
+	}
+	if !auth.check(test_token, 0) or { panic( err ) } {
+		return ctx.html('MFA Failure')
+	}
 
 	// Create TOML config.
 	// file ops
@@ -861,6 +875,7 @@ pub fn (mut app App) configure_app(mut ctx Context) veb.Result {
 	new_user := Admin {
 		username: username
 		password_hash: new_hash
+		secret: mfa_secret
 	}
 	sql app.admin_db {
 		insert new_user into Admin
@@ -885,6 +900,11 @@ pub fn (app &App) initialconfig(mut ctx Context) veb.Result {
 
 	title := app.title
 	tab_title := app.tab_title
+
+	auth := totp.new() or { panic(err) }
+
+	mfa_secret := auth.secret
+
 	return $veb.html()
 }
 

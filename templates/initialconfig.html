@@ -39,6 +39,12 @@
         <input required minlength="4" name="initial_username" autocomplete="username" type="text" id="initial-username" placeholder="e.g., admin">
         <label for="initial-password">Initial Password</label>
         <input required minlength="14" name="initial_password" autocomplete="new-password" type="password" id="initial-password" placeholder="Enter a secure password">
+        <br>
+        <label for="mfa-secret">Upload this into an authenticator app you have access to. MFA Secret: @mfa_secret</label>
+        <input hidden id="mfa-secret" name="secret" value="@mfa_secret">
+        <br>
+        <label for="mfa-test">Please enter the 6 Digit MFA code generated</label>
+        <input required minlength="6" maxlength="6" name="mfa_test" id="mfa-test" type="text" autocomplete="one-time-code" placeholder="000000">
         <button type="submit">Save Configuration</button>
       </form>
     </div>
