@@ -97,6 +97,7 @@ fn main() {
 // When deploying to prod: $ v -prod -o v_blogger .
 
 // TODOs:
+// 		0. MFA for additional admins
 //		1. Config update and server control? Reset to default?
 // 		2. Fix is_admin middleware to be immutable
 // 			- Move old session cleanup to login (should be infrequent.)
