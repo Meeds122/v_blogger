@@ -1,10 +1,13 @@
 module main
 
-// All imports are in stdlib except sqlite.
+// All imports are in stdlib except sqlite and meeds122.totp.
+// $ v install sqlite
+// $ v install Meeds122.totp
+
 // veb imports
 import veb
 import net.http { Cookie, SameSite }
-import sqlite // V's SQLite wrapper. $ v install sqlite
+import sqlite // V's SQLite wrapper.
 // utilities
 import time
 import strconv
@@ -13,7 +16,7 @@ import os
 // password hashing
 import crypto.bcrypt
 // mfa
-import totp
+import meeds122.totp // My custom TOTP MFA library.
 // sessions
 import crypto.hmac
 import crypto.sha512
