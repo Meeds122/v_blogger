@@ -38,6 +38,16 @@ Eventual features
 - SEO improvements
 - Markdown support! Maybe? 
 
+## Media
+### Public Views
+<img width="1588" height="934" alt="screenshot-2025-10-07_22-00-04" src="https://github.com/user-attachments/assets/919d2703-b737-463a-bb81-3ccdb0c4cc69" />
+<img width="1608" height="1200" alt="screenshot-2025-10-07_22-00-28" src="https://github.com/user-attachments/assets/d2b83487-cc56-4fbd-b04b-23b4e2890603" />
+
+### Admin Views
+<img width="1609" height="537" alt="screenshot-2025-10-07_21-58-46" src="https://github.com/user-attachments/assets/0aabc92d-8c60-4cfd-98f3-a316dd3fa1ff" />
+<img width="1608" height="1287" alt="screenshot-2025-10-07_21-59-08" src="https://github.com/user-attachments/assets/b627f0c2-464c-45f0-88b3-fa38cd3a8439" />
+<img width="1587" height="543" alt="screenshot-2025-10-07_21-59-53" src="https://github.com/user-attachments/assets/ae818783-256b-4ee2-a97e-b4613cfa18af" />
+<img width="1581" height="954" alt="screenshot-2025-10-07_21-59-36" src="https://github.com/user-attachments/assets/1b13c510-4147-4542-9fb2-d318f4f44693" />
 
 ## Run from source
 1. [Install the V programming language.](https://docs.vlang.io/installing-v-from-source.html) Make sure you [symlink](https://github.com/vlang/v/blob/master/README.md#symlinking) the V programming language to make it available on the PATH.
