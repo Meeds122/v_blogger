@@ -2,7 +2,7 @@
 ## About
 v_bogger is a blogging platform created using the V programming language and HTMX for additional interactivity. 
 This software is currently in *beta* and a number of features are unsupported. See the roadmap below. Additional features will be added as time permits. 
-Please see the [releases page](https://github.com/Meeds122/v_blogger/releases) for the latest pre-compiled versions. Instructions for compiling this project are further on in this document. 
+Please see the [releases page](https://github.com/Meeds122/v_blogger/releases) for the latest pre-compiled versions. Instructions for compiling this project are further on in this document. You can visit my instance of this blogging engine at [blog.customcrypto.com](https://blog.customcrypto.com/)
 
 ## Status
 ### Supported Features
