@@ -59,7 +59,6 @@ Eventual features
 ## About publishing to the internet
 This app is not configured to be available on the internet. While I made some good decisions (I think!) regarding the security of the app, V's veb framework does not support TLS encryption which is a must on the modern web. Use a reverse proxy such as Apache, NGINX, Caddy, or Kamal to handle HTTPS translation. Certain higher-traffic sites may wish to move the /static .css and .js files to the reverse proxy or another host for better compression, caching, and performance. Eventually, I would like to make a docker image that includes the reverse proxy for easy production deployment, but that project is beyond today's beta version. 
 
-
 ## AI Statement
 This application utilized AI in creating HTML and CSS mockups for the web pages.
 
