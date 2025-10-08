@@ -1,7 +1,7 @@
 # v_blogger
 ## About
 v_bogger is a blogging platform created using the V programming language and HTMX for additional interactivity. 
-This software is currently in *alpha* and a number of features are unsupported. See the roadmap below. Once the current roadmap features and the known security and reliability improvements are complete, the project will be moved into *beta* for testing.
+This software is currently in *beta* and a number of features are unsupported. See the roadmap below. Additional features will be added as time permits. 
 Please see the [releases page](https://github.com/Meeds122/v_blogger/releases) for the latest pre-compiled versions. Instructions for compiling this project are further on in this document. 
 
 ## Status
@@ -20,14 +20,7 @@ Currently Supported Features
 - Editing
 - Backup and Restore (export and import)
 - Image handling
-
-### Improvements In Progress
-Security and Reliability Improvements
-- [DONE] Generated session secrets
-- [DONE] Index guards
-- [DONE] Absolute static resource paths
-- [DONE] Fix username disclosure via timing
-- [TODO] MFA
+- MFA
 
 ### Future Improvements
 Eventual features
