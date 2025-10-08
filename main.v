@@ -799,16 +799,19 @@ pub fn (app &App) new_user (mut ctx Context) veb.Result {
 		panic(err)
 	}
 
+	new_mfa := totp.new() or { panic(err) }
+
 	new_user := Admin {
 		username: ctx.form['username']
 		password_hash: new_hash
+		secret: new_mfa.secret
 	}
 
 	sql app.admin_db {
 		insert new_user into Admin
 	} or { panic(err) }
 
-	return ctx.html('<p>Account Created</p>')
+	return ctx.html('<p>Account Created. MFA Secret ${new_user.secret}</p>')
 }
 
 @['/manageadmin/delete/:id'; delete]
