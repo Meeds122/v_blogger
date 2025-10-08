@@ -99,16 +99,14 @@ fn main() {
 // TODOs:
 // 		0. MFA for additional admins
 //		1. Config update and server control? Reset to default?
-// 		2. Fix is_admin middleware to be immutable
-// 			- Move old session cleanup to login (should be infrequent.)
-// 		3. No delete first admin? 
-//		4. Unhook init setup middleware and/or restart app after init config?
-// 		5. Better locality of behaviorin manageposts_stub.html draft and post.html. Would be nice to refresh entire entry
-// 		6. Auto-resising text-area in some forms (new post, etc. )
-// 		7. Default to system theme if theme local var not set. 
-// 		8. Logging section?
-// 		9. Post page, published date to created date. 
-// 		10. img tag CSS to auto-size images. 
+// 		2. No delete first admin? 
+//		3. Unhook init setup middleware and/or restart app after init config?
+// 		4. Better locality of behaviorin manageposts_stub.html draft and post.html. Would be nice to refresh entire entry
+// 		5. Auto-resising text-area in some forms (new post, etc. )
+// 		6. Default to system theme if theme local var not set. 
+// 		7. Logging section?
+// 		8. Post page, published date to created date. 
+// 		9. img tag CSS to auto-size images. 
 
 // ------------
 // -- Models --
@@ -177,7 +175,7 @@ pub fn (app &App) setup_blog (mut ctx Context) bool {
 	}
 }
 
-pub fn (mut app App) check_login (mut ctx Context) bool {
+pub fn (app &App) check_login (mut ctx Context) bool {
 	// No token cookie, no access
 	cookie_val := ctx.get_cookie('token') or { 
 		ctx.is_admin = false
@@ -192,10 +190,6 @@ pub fn (mut app App) check_login (mut ctx Context) bool {
 			ctx.session_validated = true
 			return true
 		}
-		// clean up old expired sessions otherwise app.sessions can grow without bound.
-		else if Session.is_expired(app.sessions[i]){
-			app.sessions.delete(i)
-		}
 	}
 	// The token cookie exists but is not valid
 	ctx.set_cookie(http.Cookie{
@@ -206,7 +200,7 @@ pub fn (mut app App) check_login (mut ctx Context) bool {
 				http_only: true
 				max_age: -1 // Delete cookie
     		})
-	
+	ctx.session_validated = false
 	ctx.is_admin = false
 	return true
 }
@@ -413,8 +407,18 @@ pub fn (mut app App) login(mut ctx Context) veb.Result {
 		
 		session := Session.new(user[0].user_id, app.session_secret, app.session_expire) or { 
 			return ctx.html(login_failure)
-		 }
+		}
+
+		// Add new session to the global session list		
 		app.sessions << session
+
+		// cleanup sessions (Good spot to do it since we need to lock app)
+		for i in 0..app.sessions.len {
+			if Session.is_expired(app.sessions[i]){
+				app.sessions.delete(i)
+			}
+		}
+
 		ctx.set_cookie(http.Cookie{
 				name: 'token'
 				value: session.token
