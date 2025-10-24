@@ -22,6 +22,9 @@ Currently Supported Features
 - Image handling
 - MFA
 
+### Features in progress
+- Post search (see [tsearch](https://github.com/Meeds122/tsearch) for trie tree search development)
+
 ### Future Improvements
 Eventual features
 - MFA Improvements
@@ -29,13 +32,14 @@ Eventual features
   - Update MFA method
   - Other MFA options
 - More convenient navigation
-  - Admin header links on drafts
-  - Front page pagination
+  - Admin header links when logged in as admin
+  - Front page pagination or infinite scroll
 - Additional responsiveness on long requests
   - Login
   - Uploads
-- Post search
-- SEO improvements
+- SEO improvements, no-JS support
+  - More templating, less dynamic load. $tmpl can replace where htmx was used for just HTML no-escaping
+- Change config settings post initial setup
 - Markdown support! Maybe? 
 
 ## Media
