@@ -22,8 +22,9 @@ Currently Supported Features
 - Image handling
 - MFA
 
-### Features in progress
+### Features in progress: v0.4.0-beta1
 - Post search (see [tsearch](https://github.com/Meeds122/tsearch) for trie tree search development)
+- Auto-theme detection. No more retina burns on initial visit for the dark mode people. 
 
 ### Future Improvements
 Eventual features
