@@ -36,26 +36,7 @@
   </div>
 
   <script>
-    // Dark mode toggle
-    const themeToggle = document.querySelector('.theme-toggle');
-    const sunIcon = document.querySelector('.sun-icon');
-    const moonIcon = document.querySelector('.moon-icon');
-    const body = document.body;
-
-    // Load saved theme
-    if (localStorage.getItem('theme') === 'dark') {
-      body.setAttribute('data-theme', 'dark');
-      sunIcon.style.display = 'none';
-      moonIcon.style.display = 'block';
-    }
-
-    themeToggle.addEventListener('click', () => {
-      const isDark = body.getAttribute('data-theme') === 'dark';
-      body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-      sunIcon.style.display = isDark ? 'block' : 'none';
-      moonIcon.style.display = isDark ? 'none' : 'block';
-      localStorage.setItem('theme', isDark ? 'light' : 'dark');
-    });
+    @include 'theme.js'
   </script>
 </body>
 </html>

@@ -7,7 +7,7 @@ module main
 // veb imports
 import veb
 import net.http { Cookie, SameSite }
-import sqlite // V's SQLite wrapper.
+import sqlite // V's SQLite wrapper. $ v install sqlite
 // utilities
 import time
 import strconv
@@ -16,7 +16,7 @@ import os
 // password hashing
 import crypto.bcrypt
 // mfa
-import meeds122.totp // My custom TOTP MFA library.
+import meeds122.totp // My custom TOTP MFA library. $ v install Meeds122.totp
 // sessions
 import crypto.hmac
 import crypto.sha512
