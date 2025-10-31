@@ -23,9 +23,9 @@ Currently Supported Features
 - MFA
 
 ### Features in progress: v0.4.0-beta1
-- Post search (see [tsearch](https://github.com/Meeds122/tsearch) for trie tree search development)
-- Auto-theme detection. No more retina burns on initial visit for the dark mode people. 
-- Admin header links when logged in as admin
+- [TODO] Post search (see [tsearch](https://github.com/Meeds122/tsearch) for trie tree search development)
+- [DONE] Auto-theme detection. No more retina burns on initial visit for the dark mode people. 
+- [DONE] Admin header links when logged in as admin
 
 ### Future Improvements
 Eventual features
