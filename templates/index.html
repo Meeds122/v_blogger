@@ -12,9 +12,13 @@
     <div class="nav-container">
       <h1>@title</h1>
       <div class="nav-links">
-        <a href="#" data-page="home" class="active">Home</a>
-        <a href="#" data-page="contact">Contact</a>
-        <a href="#" data-page="login">Login</a>
+        <a href="#" data-page="home" class="active spa-link">Home</a>
+        <a href="#" data-page="contact" class="spa-link">Contact</a>
+        @if ctx.is_admin
+        <a href="/admin">Admin</a>
+        @else
+        <a href="#" data-page="login" class="spa-link">Login</a>
+        @end
         <button class="theme-toggle" aria-label="Toggle dark mode">
           <svg viewBox="0 0 20 20" class="sun-icon">
             <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 11-2 0 1 1 0 012 0zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 11-2 0 1 1 0 012 0zm-1-1H2a1 1 0 110-2h1a1 1 0 110 2z"/>
@@ -89,14 +93,16 @@
     const navLinks = document.querySelectorAll('.nav-links a');
 
     navLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const pageId = link.getAttribute('data-page');
-        pages.forEach(page => page.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        navLinks.forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
-      });
+      if(link.classList.contains('spa-link')){
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const pageId = link.getAttribute('data-page');
+          pages.forEach(page => page.classList.remove('active'));
+          document.getElementById(pageId).classList.add('active');
+          navLinks.forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+        });
+      }
     });
   </script>
 
