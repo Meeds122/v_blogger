@@ -50,6 +50,8 @@ pub mut:
 	article_db		sqlite.DB
 	session_expire 	int 		// Session expiration in seconds.
 	sessions 		[]Session
+	trie_tree		Node
+	trie_tree_load	time.Duration
 }
 
 fn main() {
@@ -62,6 +64,7 @@ fn main() {
 								// If changing this value, need to re-generate the failure work hash in the login function to match timing. 
 		sessions:		[]Session{}
 		session_secret: cryptorand.bytes(24) or { panic(err) }
+		trie_tree: 		Node{ key: '' }
     }
 
 	// read config and set needs_setup
@@ -77,6 +80,7 @@ fn main() {
 		app.session_expire = strconv.atoi(doc.value('session_expire').string()) or { panic(err) }
 	}
 
+	// Database setup
 	sql app.article_db {
         create table Post
 		create table Comment
@@ -86,10 +90,28 @@ fn main() {
 		create table Admin
 	} or { panic(err) }
 
-	app.handle_static('static', true) or { panic(err) }
+	// search
+	ttstart := time.now()
+	posts := sql app.article_db {
+		select from Post where draft == false
+    } or { panic(err) }
 
+	if posts.len != 0 {
+		mut keywords := map[string]Keyword{}
+		for post in posts {
+			Keyword.kws(post, mut keywords) or { println(err) }
+		}
+		for _, keyword in keywords {
+			Node.create_branch(keyword, 0, mut app.trie_tree)
+		}
+	}
+	app.trie_tree_load = time.now() - ttstart
+
+	// Static and handlers
+	app.handle_static('static', true) or { panic(err) }
 	app.use(handler: app.check_login)
     
+	// Start server
     veb.run_at[App, Context](mut app, host: 'localhost' port: app.port family: .ip)!
 }
 
@@ -97,21 +119,20 @@ fn main() {
 // When deploying to prod: $ v -prod -o v_blogger .
 
 // TODOs:
-// 		0. MFA for additional admins
 //		1. Config update and server control? Reset to default?
 // 		2. No delete first admin? 
 //		3. Unhook init setup middleware and/or restart app after init config?
 // 		4. Better locality of behaviorin manageposts_stub.html draft and post.html. Would be nice to refresh entire entry
 // 		5. Auto-resising text-area in some forms (new post, etc. )
-// 		6. Default to system theme if theme local var not set. 
-// 		7. Logging section?
-// 		8. Post page, published date to created date. 
-// 		9. img tag CSS to auto-size images. 
+// 		6. Logging section?
+// 		7. Post page, published date to created date. 
+// 		8. img tag CSS to auto-size images. 
 
 // ------------
 // -- Models --
 // -----------
 
+// Content
 pub struct Post {
 pub:
 	post_id 	int		@[primary; unique; serial]
@@ -124,6 +145,7 @@ pub mut:
 	content		string
 }
 
+// Content
 pub struct Comment {
 pub:
 	comment_id	int		@[primary; unique; serial]
@@ -133,6 +155,7 @@ pub:
 	message		string
 }
 
+// Security
 pub struct Admin {
 	user_id			int 		@[primary; unique; serial]
 	username 		string
@@ -143,11 +166,28 @@ pub struct Admin {
 	digits		int		= 6		// Digits is how long the returned code is. 6-8. Default 6
 }
 
+// Security
 pub struct Session {
 pub:
 	user_id		int
 	token		string
 	expiration	i64		// Epoch timestamp of when expire. 
+}
+
+// Search
+struct Keyword {
+	word string
+mut:
+	hits int
+	found_in map[int]int // {post_id: hits in article}
+}
+
+// Search
+struct Node {
+	key string
+mut:
+	branches map[string]Node
+	keywords []Keyword
 }
 
 // ----------------
@@ -1065,7 +1105,7 @@ fn make_image_stub (fname string, id int) string {
 
 // This function reminds me of python string maipulation and now I feel gross. 
 fn johanns_maw (text string) string {
-	banned_chars := {
+	maw_banned_chars := {
 		'&': '&amp'
 		'<': '&lt'
 		'>': '&gt'
@@ -1076,8 +1116,8 @@ fn johanns_maw (text string) string {
 	mut return_text := ''
 
 	for i in 0..text.len {
-		if text[i].ascii_str() in banned_chars.keys() {
-			return_text += banned_chars[text[i].ascii_str()]
+		if text[i].ascii_str() in maw_banned_chars.keys() {
+			return_text += maw_banned_chars[text[i].ascii_str()]
 		}
 		else {
 			return_text += text[i].ascii_str()
@@ -1112,5 +1152,159 @@ fn Session.is_expired(session Session) bool {
 		now == session.expiration { return true }
 		now < session.expiration { return false }
 		else { return true } // better safe than sorry
+	}
+}
+
+const banned_words := [
+	'to',
+	'a',
+	'like',
+	'with',
+	'and',
+	'for',
+	'of',
+	'but',
+	'from',
+	'in',
+	'the',
+	'are',
+	'the',
+	'into',
+	'as',
+	'without',
+	'that'
+	'at',
+	'on',
+	'is',
+	'now',
+	'could',
+	'be',
+	'or',
+	'by',
+	'have',
+	'an',
+	'while',
+	'must',
+	'use',
+]
+
+const banned_chars := [
+	r'~',
+	r'!',
+	r'@',
+	r'#',
+	r'$',
+	r'%',
+	r'^',
+	r'&',
+	r'*',
+	r'(',
+	r')',
+	r'_',
+	r'+',
+	r'`',
+	r'-',
+	r"'",
+	r'=',
+	r'{',
+	r'}',
+	r'|',
+	r':',
+	r'"',
+	r'<',
+	r'>',
+	r'?',
+	r'[',
+	r']',
+	r'\',
+	r';',
+	r"'",
+	r',',
+	r'.',
+	r'/',
+	'\n'
+]
+
+fn Keyword.kws (post Post, mut keywords map[string]Keyword)!{
+
+	mut words := []string{}
+	words << post.title.split(' ').map(it.to_lower())
+	words << post.summary.split(' ').map(it.to_lower())
+	words << post.content.split(' ').map(it.to_lower())
+
+	if words.len < 1 {
+		return error('Insufficient Content')
+	}
+
+	for raw_word in words {
+
+		raw_word_array := raw_word.bytes().map(it.ascii_str())
+
+		if ('<' in raw_word_array) && ('>' in raw_word_array) {
+			// probably an HTML tag
+			continue
+		}
+		
+		mut word := raw_word_array.filter( it !in banned_chars ).join('')
+
+		if word.len == 0 {
+			// All characters were banned characters
+			continue
+		}
+		else if word in banned_words {
+			continue
+		} // End input cleanup
+		else if word in keywords {
+			keywords[word].hits += 1 
+			if post.post_id in keywords[word].found_in {
+				keywords[word].found_in[post.post_id] += 1
+			}
+			else {
+				keywords[word].found_in[post.post_id] = 1
+			}
+		}
+		else {
+			keywords[word] = Keyword{
+				hits: 1
+				word: word
+				found_in: {post.post_id: 1}
+			}
+		}
+	}
+
+}
+
+fn Node.create_branch (keyword Keyword, index int, mut node Node) {
+	c := keyword.word[index].ascii_str()
+	if c !in node.branches{
+		node.branches[c] = Node { key: c }
+	}
+	if keyword.word.len - 1 == index {
+		node.branches[c].keywords << keyword
+		return
+	}
+	else {
+		Node.create_branch(keyword, index + 1, mut node.branches[c])
+	}
+	return
+}
+
+fn (root Node) find (findstr string, index int) []Keyword {
+	
+	mut keywords := []Keyword{}
+
+	if index > findstr.len - 1 {
+		keywords << root.keywords
+		for _, branch in root.branches {
+			keywords << branch.find(findstr, index + 1)
+		}
+		return keywords
+	}
+	else {
+		if root.key == findstr {
+			keywords << root.keywords
+		}
+		keywords << root.branches[findstr[index].ascii_str()].find(findstr, index+1)
+		return keywords
 	}
 }
