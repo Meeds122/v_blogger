@@ -259,3 +259,24 @@
     .posts-bucket button:hover {
       background-color: #1d4ed8;
     }
+
+    .search label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+      color: var(--text-color);
+    }
+
+    .search input,
+    .search search,
+    .search textarea {
+      width: 98%;
+      padding: 0.5rem;
+      border: 1px solid var(--text-secondary);
+      border-radius: 0.25rem;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }

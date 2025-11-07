@@ -35,6 +35,14 @@
     
     <div id="home" class="page active">
       <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem;">Blog</h1>
+        <div class="search">
+        <input type="search"
+          name="search" placeholder="Search"
+          hx-post="/search"
+          hx-trigger="input changed delay:100ms, keyup[key=='Enter'], load"
+          hx-target="#posts"
+        >
+        </div>
       <div id="all-posts" class="posts-bucket">
         <div id="posts"
           hx-get="/posts?from=0&to=10" 
