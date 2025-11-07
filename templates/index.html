@@ -39,14 +39,14 @@
           <input type="search"
             name="search" placeholder="Search"
             hx-post="/search"
-            hx-trigger="input changed delay:100ms, keyup[key=='Enter'], load"
+            hx-trigger="input changed delay:150ms, keyup[key=='Enter']"
             hx-target="#posts"
           >
           or
           <button
             hx-get="/posts"
             hx-swap="innerHTML"
-            hx-target="#all-posts"
+            hx-target="#posts"
           >See All Posts</button>
         </div>
       <div id="all-posts" class="posts-bucket">
