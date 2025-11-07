@@ -36,12 +36,18 @@
     <div id="home" class="page active">
       <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem;">Blog</h1>
         <div class="search">
-        <input type="search"
-          name="search" placeholder="Search"
-          hx-post="/search"
-          hx-trigger="input changed delay:100ms, keyup[key=='Enter'], load"
-          hx-target="#posts"
-        >
+          <input type="search"
+            name="search" placeholder="Search"
+            hx-post="/search"
+            hx-trigger="input changed delay:100ms, keyup[key=='Enter'], load"
+            hx-target="#posts"
+          >
+          or
+          <button
+            hx-get="/posts"
+            hx-swap="innerHTML"
+            hx-target="#all-posts"
+          >See All Posts</button>
         </div>
       <div id="all-posts" class="posts-bucket">
         <div id="posts"
@@ -50,13 +56,6 @@
           hx-swap="innerHTML"
         >
           <h2>Loading...</h2>
-        </div>
-        <div>
-          <button
-          hx-get="/posts"
-          hx-swap="innerHTML"
-          hx-target="#all-posts"
-          >See All Posts</button>
         </div>
       </div>
     </div>
