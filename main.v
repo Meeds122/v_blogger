@@ -127,6 +127,7 @@ fn main() {
 // 		6. Logging section?
 // 		7. Post page, published date to created date. 
 // 		8. img tag CSS to auto-size images. 
+// 		9. --> Add new post keywords to search. Currently only runs on server start
 
 // ------------
 // -- Models --
@@ -258,6 +259,16 @@ pub fn (app &App) index(mut ctx Context) veb.Result {
 // -------------------
 // -- Public Routes -- 
 // -------------------
+
+@['/searchstatus'; get]
+pub fn (app &App) search_status (mut ctx Context) veb.Result {
+	return ctx.text('${app.trie_tree_load}')
+}
+
+@['/search'; post]
+pub fn (app &App) search (mut ctx Context) veb.Result {
+	return ctx.request_error('Not yet implemented')
+}
 
 // hitting this endpoint with no get parameters yields all posts
 // including ?from=&to= will yield a set of those posts.
