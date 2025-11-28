@@ -260,6 +260,7 @@ pub fn (app &App) index(mut ctx Context) veb.Result {
 // -- Public Routes -- 
 // -------------------
 
+// Useful for understanding startup impact of search on blog. 
 @['/searchstatus'; get]
 pub fn (app &App) search_status (mut ctx Context) veb.Result {
 	return ctx.text('${app.trie_tree_load}')
@@ -267,7 +268,63 @@ pub fn (app &App) search_status (mut ctx Context) veb.Result {
 
 @['/search'; post]
 pub fn (app &App) search (mut ctx Context) veb.Result {
-	return ctx.request_error('Not yet implemented')
+		// Let's make sure the form submission is complete. 
+	if 'search' !in ctx.form {
+		return ctx.request_error("Invalid Request")
+	}
+	// Let's make sure no fields are blank
+	match false {
+        ctx.form['search'].len > 0  { return ctx.request_error("Invalid Request") }
+        else {}
+    }
+
+	keywords := app.trie_tree.find('${ctx.form['search']}', 0)
+
+	// collect hits by article ID
+	mut results := map[int]int{}
+	for keyword in keywords {
+		for article, hits in keyword.found_in {
+			if article in results {
+				results[article] += hits
+			}
+			else { 
+				results[article] = hits
+			}
+		}
+	}
+	
+	// sort by number of hits
+	struct Result {
+		article_id int
+		hits int
+	}
+	mut search_results := []Result{}
+	for article, hits in results {
+		search_results << Result { article_id: article, hits: hits }
+	}
+	search_results.sort(a.hits > b.hits)
+	
+	// get articles from db
+	mut posts := []Post{}
+	for result in search_results {
+		posts << sql app.article_db {
+			select from Post where draft == false && post_id == result.article_id
+		} or { panic(err) }
+	}
+
+	// Create Content
+	mut content := ''
+	for post in posts {
+		content += make_post_stub(post.post_id, 
+								post.title, 
+								time.unix(post.created).strftime('%F'),
+								post.summary )
+	}
+
+	// TODO: What about empty search? 
+	// 		 Verify Drafts do not get show via testing. 
+
+	return ctx.html(content)
 }
 
 // hitting this endpoint with no get parameters yields all posts
